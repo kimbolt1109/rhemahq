@@ -32,6 +32,12 @@ function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
+function isoDate(v) {
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  if (typeof v === "number") return new Date(Math.round((v - 25569) * 86400000)).toISOString().slice(0, 10);
+  return String(v ?? "");
+}
+
 // questions: {category, id, type, xml, line}
 export async function buildMoodleRelease(questions) {
   const seen = new Set();
@@ -167,12 +173,12 @@ if (typeof document !== "undefined") {
   document.getElementById("ledger-file").addEventListener("change", async (e) => {
     const f = e.target.files[0]; if (!f) return;
     const buf = await f.arrayBuffer();
-    const wb = XLSX.read(buf, { type: "array" });
+    const wb = XLSX.read(buf, { type: "array", cellDates: true });
     const rows = []; const hashes = {};
     hashes[f.name] = await sha256Hex(new TextDecoder().decode(buf));
     for (const sn of wb.SheetNames) {
       const json = XLSX.utils.sheet_to_json(wb.Sheets[sn], { defval: "" });
-      json.forEach((r, i) => rows.push({ file: f.name, sheet: sn, row: i + 2, provider: r.provider || r.Provider || "", batch: r.batch || "", currency: r.currency || "USD", date: r.date || "", label: r.label || r.fee || "", quantity: r.quantity === "" ? null : r.quantity, unit: r.unit === "" ? null : r.unit, total: r.total || 0 }));
+      json.forEach((r, i) => rows.push({ file: f.name, sheet: sn, row: i + 2, provider: r.provider || r.Provider || "", batch: r.batch || "", currency: r.currency || "USD", date: isoDate(r.date), label: r.label || r.fee || "", quantity: r.quantity === "" ? null : r.quantity, unit: r.unit === "" ? null : r.unit, total: r.total || 0 }));
     }
     setLedger(rows, hashes);
     document.getElementById("ledger-note").textContent = `Loaded ${f.name}: ${rows.length} rows. Build the workbook.`;

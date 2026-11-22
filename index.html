@@ -114,6 +114,11 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
 .marquee{overflow:hidden;border-block:1px solid var(--line);padding:18px 0;max-width:none}
 .track{display:flex;gap:56px;width:max-content;will-change:transform}
 .track span{font:500 13px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+/* get the tools */
+.get-row{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--line);padding:22px 4px;flex-wrap:wrap}
+.get-row h3{font-size:1.35rem}
+.get-price{font:500 12px var(--mono);color:var(--ink2);margin-top:4px}
+.get-links{display:flex;gap:10px;flex-wrap:wrap}
 /* access + footer */
 .access{text-align:center;padding-bottom:120px}
 .access .sec-lede{margin-inline:auto}
@@ -180,19 +185,19 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <h2 class="reveal">Three jobs, <em>one</em> discipline.</h2>
   <p class="sec-lede reveal">Each tool reads the exports you already hold and returns a finished artifact plus a receipt that ties every line back to its source.</p>
   <article class="tool reveal">
-    <div class="tool-meta"><span class="idx">01</span><span class="status early">early access</span></div>
+    <div class="tool-meta"><span class="idx">01</span><span class="status live">download + license</span></div>
     <h3>OJS Galley Studio</h3>
     <p>Renders a Word manuscript and its metadata into a two-column PDF, standalone HTML and JATS Publishing 1.2 XML, then hands them to OJS's add-galley action. The editor approves layout, names and rights.</p>
     <ul class="proof"><li>Verified on OJS 3.5.0.4</li><li>JATS 1.2 DTD clean</li><li>PDF · HTML · JATS</li></ul>
   </article>
   <article class="tool reveal">
-    <div class="tool-meta"><span class="idx">02</span><span class="status live">live demo below</span></div>
+    <div class="tool-meta"><span class="idx">02</span><span class="status live">demo + download</span></div>
     <h3>Fulfillment Ledger</h3>
     <p>Consolidates 3PL invoice exports into one reconciliation workbook: every fee label rolled up by provider, month and currency, and every billed row kept with its original file, worksheet, line and file hash.</p>
     <ul class="proof"><li>Edge + native Excel</li><li>CSV · XLSX in, XLSX out</li><li>Per-row source address</li></ul>
   </article>
   <article class="tool reveal">
-    <div class="tool-meta"><span class="idx">03</span><span class="status live">live demo below</span></div>
+    <div class="tool-meta"><span class="idx">03</span><span class="status live">demo + download</span></div>
     <h3>Moodle Release Pack</h3>
     <p>Merges approved Moodle XML question banks into a single import file plus a row-by-row receipt — category, stable id, source line and checksum — so a reviewer can spot-check before importing.</p>
     <ul class="proof"><li>Moodle 4.5.16 / 5.2.5 / 5.3.1</li><li>6 types incl. Cloze</li><li>Embedded files preserved</li></ul>
@@ -241,9 +246,26 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <span>DOCX</span><span>JATS 1.2</span><span>PDF</span><span>HTML</span><span>CSV</span><span>XLSX</span><span>Moodle XML</span><span>GIFT</span><span>Cloze</span><span>SHA-256</span><span>OJS 3.5</span><span>Moodle 4.5–5.2</span>
 </div></div>
 
+<section class="get" id="get">
+  <h2 class="reveal">Get the <em>tools</em>.</h2>
+  <p class="sec-lede reveal">Downloads are free for evaluation. A Polar license key unlocks commercial use and support; checkout is handled by Polar as merchant of record.</p>
+  <div class="get-row reveal">
+    <div><h3>OJS Galley Studio</h3><p class="get-price">$59 / month · GPL-3.0 companion scripts</p></div>
+    <div class="get-links"><a class="pill" href="./tools/ojs-galley-studio.zip">Download .zip</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_oYpKZOhybJSKDXGNpBX2cgRC5MuWHki2MZM96264pL2">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+  </div>
+  <div class="get-row reveal">
+    <div><h3>Fulfillment Ledger</h3><p class="get-price">$49 / month · offline browser tool</p></div>
+    <div class="get-links"><a class="pill" href="./tools/ledger/index.html">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_IVdlZd6WU4wcJhtc6DyBFYXBdMOFMejVklGoy254e9F">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+  </div>
+  <div class="get-row reveal">
+    <div><h3>Moodle Release Pack</h3><p class="get-price">$499 / year · offline browser tool</p></div>
+    <div class="get-links"><a class="pill" href="./tools/moodle/index.html">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_z5qkgHnOO6GtdhD9UKfoMhnnLTCVEnRIwoNmi15D72I">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+  </div>
+</section>
+
 <section class="access" id="access">
-  <h2 class="reveal">Get early <em>access</em>.</h2>
-  <p class="sec-lede reveal">The demos are free now. Paid licenses open at launch; write to us and we'll bring you in first.</p>
+  <h2 class="reveal">Questions? <em>Talk</em> to us.</h2>
+  <p class="sec-lede reveal">Evaluation is free; commercial licenses are live above. For pilots, volume seats or authorized real-input validation, write to us.</p>
   <a class="pill cta solid reveal" href="mailto:support@trimprocure.com?subject=Early%20access%20—%20Sync%20Sanctuary">Email support@trimprocure.com<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 </section>
 </main>
