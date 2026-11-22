@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sync Sanctuary — every source, accounted for</title>
+<meta name="description" content="Three small tools that turn the files you already have into a finished, checkable handoff: journal galleys, a tied-out fulfillment workbook, a verified Moodle question bank. They run on your machine; the proof travels with the output.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+:root{
+  --void:#060709; --panel:rgba(255,255,255,.025); --line:rgba(255,255,255,.09);
+  --ink:rgba(255,255,255,.92); --ink2:rgba(255,255,255,.66); --ink3:rgba(255,255,255,.42);
+  --paper:#E6E1D3; --verify:#00E38C;
+  --serif:"Instrument Serif",serif; --sans:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--paper);color:var(--void)}
+a{color:inherit;text-decoration:none}
+.skip{position:absolute;left:-999px;top:0;background:var(--paper);color:var(--void);padding:8px 14px;z-index:99}
+.skip:focus{left:12px;top:12px}
+:focus-visible{outline:2px solid var(--paper);outline-offset:3px;border-radius:4px}
+em{font-style:italic;color:var(--paper)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.02em;line-height:1.02}
+h1{font-size:clamp(3rem,8vw,6.2rem);line-height:.98;letter-spacing:-.03em}
+h2{font-size:clamp(2.1rem,5vw,3.6rem)}
+h3{font-size:1.5rem;letter-spacing:-.01em}
+.glass{background:var(--panel);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--line);box-shadow:inset 0 1px 1px rgba(255,255,255,.08),0 24px 60px -30px rgba(0,0,0,.8);border-radius:18px;position:relative}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:10px 18px;font:500 14px var(--sans);color:var(--ink);background:rgba(255,255,255,.03);cursor:pointer;transition:transform .35s var(--ease),background .35s var(--ease)}
+.pill:hover{transform:scale(1.03);background:rgba(255,255,255,.07)}
+.pill svg{width:15px;height:15px;transition:transform .35s var(--ease)}
+.pill:hover svg{transform:translateX(3px)}
+.pill.solid{background:var(--paper);color:var(--void);border-color:transparent}
+.pill.solid:hover{background:#f2eee2}
+.pill[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.quiet{color:var(--ink2);font-size:14px;border-bottom:1px solid var(--line);padding-bottom:2px}
+.quiet:hover{color:var(--ink)}
+/* webgl layer */
+#gl{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .3s linear}
+#gl-tip{position:fixed;z-index:60;font:500 11px var(--mono);color:var(--verify);background:rgba(6,7,9,.85);border:1px solid rgba(0,227,140,.35);border-radius:8px;padding:6px 10px;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;backdrop-filter:blur(4px)}
+#gl-tip.on{opacity:1;transform:none}
+main,footer{position:relative;z-index:1}
+body.no-gl{background:radial-gradient(1200px 600px at 70% 20%,rgba(0,227,140,.08),transparent 60%),var(--void)}
+/* nav */
+.nav{position:fixed;inset:16px 16px auto;z-index:50;display:flex;justify-content:center}
+.nav-in{display:flex;align-items:center;gap:26px;padding:10px 12px 10px 20px;border-radius:999px;max-width:760px;width:100%}
+.brand{font:500 15px var(--mono);letter-spacing:.02em;color:var(--ink)}
+.brand span{color:var(--paper)}
+.links{display:flex;gap:20px;margin-left:auto;font-size:14px;color:var(--ink2)}
+.links a:hover{color:var(--ink)}
+.nav .cta{padding:8px 16px}
+/* hero */
+.hero{min-height:100dvh;display:flex;align-items:center;padding:120px 24px 60px;max-width:1200px;margin:0 auto}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;width:100%}
+.hero-copy{position:relative}
+.hero-copy::before{content:"";position:absolute;inset:-48px -24px -48px -24px;background:radial-gradient(closest-side,rgba(6,7,9,.78),rgba(6,7,9,.35) 62%,transparent);z-index:-1;filter:blur(14px);pointer-events:none}
+.hero h1,.hero .lede{text-shadow:0 2px 24px rgba(6,7,9,.85)}
+.badge{display:inline-block;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);padding:7px 14px;border-radius:999px;margin-bottom:26px}
+.lede{color:var(--ink2);font-size:17px;max-width:46ch;margin:26px 0 32px}
+.hero-cta{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.stats{display:flex;gap:44px;margin-top:52px}
+.stats dt{font:400 2.4rem var(--serif);color:var(--paper)}
+.stats dd{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-top:2px}
+/* console centerpiece */
+.console{padding:18px;overflow:hidden}
+.con-head{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--verify);box-shadow:0 0 10px var(--verify)}
+.con-body{font:400 12.5px/1.9 var(--mono);color:var(--ink2);min-height:150px;white-space:pre-wrap}
+.con-body .ok{color:var(--verify)}
+.provenance{width:100%;margin-top:8px}
+.provenance rect{fill:none;stroke:var(--line)}
+.provenance .sum{stroke:var(--paper)}
+.provenance .wire{fill:none;stroke:var(--paper);stroke-width:1.2;opacity:.75}
+.provenance text{font:500 10px var(--mono);fill:var(--ink3)}
+.provenance .sum-t{fill:var(--paper)}
+/* sections */
+section{max-width:1200px;margin:0 auto;padding:96px 24px}
+.sec-lede{color:var(--ink2);max-width:60ch;margin:18px 0 48px;font-size:17px}
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tools h2,.tools .sec-lede{grid-column:1/-1}
+.tool{border-top:1px solid var(--line);padding:26px 4px 8px}
+.tool-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.idx{font:500 12px var(--mono);color:var(--ink3)}
+.status{font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid var(--line)}
+.status.live{color:var(--verify);border-color:rgba(0,227,140,.35)}
+.status.early{color:var(--paper);border-color:rgba(230,225,211,.35)}
+.tool p{color:var(--ink2);font-size:15px;margin:12px 0 18px}
+.proof{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.proof li{font:500 11px var(--mono);color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+/* demos */
+.demo{padding:26px;margin-bottom:22px}
+.demo header h3{margin-bottom:4px}
+.demo header p{color:var(--ink2);font-size:14px;margin-bottom:18px}
+.demo-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.file input{display:none}
+.demo-out{display:grid;gap:16px;overflow-x:auto}
+.demo-out table{width:100%;min-width:560px;border-collapse:collapse;font:400 12.5px var(--mono)}
+.demo-out th{font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+.demo-out td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink2);vertical-align:top}
+.demo-out td.num{text-align:right;color:var(--ink)}
+.demo-out .hash{color:var(--verify)}
+.demo-note{color:var(--ink3);font-size:12.5px;margin-top:14px}
+.demo-out h4{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+/* method */
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:44px}
+.method-grid h3{font-size:1.3rem;margin-bottom:10px;color:var(--paper)}
+.method-grid p{color:var(--ink2);font-size:15px}
+/* marquee */
+.marquee{overflow:hidden;border-block:1px solid var(--line);padding:18px 0;max-width:none}
+.track{display:flex;gap:56px;width:max-content;will-change:transform}
+.track span{font:500 13px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+/* access + footer */
+.access{text-align:center;padding-bottom:120px}
+.access .sec-lede{margin-inline:auto}
+.foot{border-top:1px solid var(--line);padding:34px 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1200px;margin:0 auto;color:var(--ink3);font-size:13px}
+.foot a{color:var(--ink2);border-bottom:1px solid var(--line)}
+/* reveal */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .pill,.pill svg{transition:none}
+  .track{animation:none}
+}
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .tools{grid-template-columns:1fr}
+  .method-grid{grid-template-columns:1fr}
+  .links{display:none}
+  .stats{gap:28px}
+}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="gl-tip" role="status"></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="nav-in glass">
+    <a class="brand" href="#top">sync<span>sanctuary</span></a>
+    <nav class="links" aria-label="Primary">
+      <a href="#tools">Tools</a><a href="#demos">Demos</a><a href="#method">Method</a>
+    </nav>
+    <a class="pill cta" href="#access">Get early access<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="badge glass reveal">Source-verified handoffs · run locally</p>
+      <h1 class="reveal d1">Every source,<br><em>accounted</em> for.</h1>
+      <p class="lede reveal d2">Three small tools that turn the files you already have into a finished, checkable handoff — galleys for your journal, a tied-out fulfillment workbook, a verified Moodle question bank. They run on your machine. The proof travels with the output.</p>
+      <div class="hero-cta reveal d3">
+        <a class="pill cta solid" href="#demos">Run the live demos<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="quiet" href="#method">How verification works</a>
+      </div>
+      <dl class="stats reveal d4">
+        <div><dt data-count="3">0</dt><dd>tools</dd></div>
+        <div><dt data-count="6">0</dt><dd>question types</dd></div>
+        <div><dt data-count="0">0</dt><dd>files leave your device</dd></div>
+      </dl>
+    </div>
+    <figure class="console glass reveal d2" aria-label="Example source receipt">
+      <figcaption class="con-head"><span class="dot"></span>source receipt · live sample</figcaption>
+      <pre id="receipt" class="con-body" aria-live="polite"></pre>
+    </figure>
+  </div>
+</section>
+
+<section class="tools" id="tools">
+  <h2 class="reveal">Three jobs, <em>one</em> discipline.</h2>
+  <p class="sec-lede reveal">Each tool reads the exports you already hold and returns a finished artifact plus a receipt that ties every line back to its source.</p>
+  <article class="tool reveal">
+    <div class="tool-meta"><span class="idx">01</span><span class="status early">early access</span></div>
+    <h3>OJS Galley Studio</h3>
+    <p>Renders a Word manuscript and its metadata into a two-column PDF, standalone HTML and JATS Publishing 1.2 XML, then hands them to OJS's add-galley action. The editor approves layout, names and rights.</p>
+    <ul class="proof"><li>Verified on OJS 3.5.0.4</li><li>JATS 1.2 DTD clean</li><li>PDF · HTML · JATS</li></ul>
+  </article>
+  <article class="tool reveal">
+    <div class="tool-meta"><span class="idx">02</span><span class="status live">live demo below</span></div>
+    <h3>Fulfillment Ledger</h3>
+    <p>Consolidates 3PL invoice exports into one reconciliation workbook: every fee label rolled up by provider, month and currency, and every billed row kept with its original file, worksheet, line and file hash.</p>
+    <ul class="proof"><li>Edge + native Excel</li><li>CSV · XLSX in, XLSX out</li><li>Per-row source address</li></ul>
+  </article>
+  <article class="tool reveal">
+    <div class="tool-meta"><span class="idx">03</span><span class="status live">live demo below</span></div>
+    <h3>Moodle Release Pack</h3>
+    <p>Merges approved Moodle XML question banks into a single import file plus a row-by-row receipt — category, stable id, source line and checksum — so a reviewer can spot-check before importing.</p>
+    <ul class="proof"><li>Moodle 4.5.16 / 5.2.5 / 5.3.1</li><li>6 types incl. Cloze</li><li>Embedded files preserved</li></ul>
+  </article>
+</section>
+
+<section class="demos" id="demos">
+  <h2 class="reveal">Try them <em>here</em>, in your browser.</h2>
+  <p class="sec-lede reveal">Nothing is uploaded. Load the synthetic sample or your own file; the tool runs on this page and hands you the output.</p>
+
+  <div class="demo glass reveal" id="demo-ledger">
+    <header><h3>Fulfillment Ledger</h3><p>CSV / XLSX invoice exports → one tied-out workbook.</p></header>
+    <div class="demo-controls">
+      <button class="pill" data-sample="ledger">Load synthetic sample</button>
+      <label class="pill file">Choose file<input type="file" id="ledger-file" accept=".csv,.xlsx,.xls"></label>
+      <button class="pill solid" id="ledger-run" disabled>Build workbook</button>
+      <button class="pill" id="ledger-download" disabled>Download .xlsx</button>
+    </div>
+    <div class="demo-out"><div id="ledger-summary"></div><div id="ledger-sources"></div></div>
+    <p class="demo-note" id="ledger-note">Runs entirely on this page. Credits stay signed; blank unit prices stay blank.</p>
+  </div>
+
+  <div class="demo glass reveal" id="demo-moodle">
+    <header><h3>Moodle Release Pack</h3><p>Moodle XML banks → one import file + source receipt.</p></header>
+    <div class="demo-controls">
+      <button class="pill" data-sample="moodle">Load synthetic sample</button>
+      <label class="pill file">Choose .xml<input type="file" id="moodle-file" accept=".xml,text/xml"></label>
+      <button class="pill solid" id="moodle-run" disabled>Build release</button>
+      <button class="pill" id="moodle-download" disabled>Download import .xml</button>
+    </div>
+    <div class="demo-out"><div id="moodle-counts"></div><div id="moodle-receipt"></div></div>
+    <p class="demo-note" id="moodle-note">Counts per category and a checksum per item. The institution approves grading and content.</p>
+  </div>
+</section>
+
+<section class="method" id="method">
+  <h2 class="reveal">The proof travels <em>with</em> the file.</h2>
+  <div class="method-grid">
+    <div class="reveal"><h3>Local by default</h3><p>Files are read on your device. Only a small license check ever leaves it — never your invoices, manuscripts or question banks.</p></div>
+    <div class="reveal"><h3>Address + hash per row</h3><p>Every billed row or question keeps its original filename, worksheet or line, and a SHA-256 of the source, so a reviewer can re-open exactly what was read.</p></div>
+    <div class="reveal"><h3>Equivalence, not invention</h3><p>The tools serialize and compare what you supplied. They never guess an answer, assign a ledger account, or make a teaching or tax decision.</p></div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="marquee">
+  <span>DOCX</span><span>JATS 1.2</span><span>PDF</span><span>HTML</span><span>CSV</span><span>XLSX</span><span>Moodle XML</span><span>GIFT</span><span>Cloze</span><span>SHA-256</span><span>OJS 3.5</span><span>Moodle 4.5–5.2</span>
+</div></div>
+
+<section class="access" id="access">
+  <h2 class="reveal">Get early <em>access</em>.</h2>
+  <p class="sec-lede reveal">The demos are free now. Paid licenses open at launch; write to us and we'll bring you in first.</p>
+  <a class="pill cta solid reveal" href="mailto:support@trimprocure.com?subject=Early%20access%20—%20Sync%20Sanctuary">Email support@trimprocure.com<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</section>
+</main>
+
+<footer class="foot">
+  <p>© 2026 Sync Sanctuary · rhemahq.com</p>
+  <p class="foot-note">Capabilities verified on synthetic fixtures; live customer validation in progress. <a href="mailto:support@trimprocure.com">Contact</a></p>
+</footer>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module" src="./src/scene.js"></script>
+<script type="module" src="./src/site.js"></script>
+</body>
+</html>

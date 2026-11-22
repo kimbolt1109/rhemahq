@@ -1,0 +1,13 @@
+{
+  "name": "rhemahq-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm install",
+    "dev": "npx --yes serve@14 .",
+    "test": "node --test tests/",
+    "lint": "node --check src/site.js",
+    "format": "npx --yes prettier@3 --write .",
+    "build": "node --check src/site.js"
+  }
+}

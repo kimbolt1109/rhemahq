@@ -1,0 +1,7 @@
+node_modules/
+.env
+dist/
+*.log
+.claude-flow/
+.omc/
+DEPLOY.md
