@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reconcile Fulfyld Billing Detail Reports (BDR) in a workbook — Sync Sanctuary</title>
+<meta name="description" content="Fulfyld Billing Detail Report (BDR) CSV fields, download path, and a source-row reconciliation workflow for 3PL finance ops.">
+<link rel="canonical" href="https://rhemahq.com/guides/fulfyld-bdr-reconciliation.html">
+<meta property="og:title" content="Reconcile Fulfyld Billing Detail Reports (BDR) in a workbook — Sync Sanctuary">
+<meta property="og:description" content="Fulfyld Billing Detail Report (BDR) CSV fields, download path, and a source-row reconciliation workflow for 3PL finance ops.">
+<meta property="og:url" content="https://rhemahq.com/guides/fulfyld-bdr-reconciliation.html">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/page.css">
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">sync<span>sanctuary</span></a>
+    <nav aria-label="Primary">
+      <a href="../#tools">Tools</a>
+      <a href="../#demos">Demos</a>
+      <a href="../guides/">Guides</a>
+      <a href="../#get">Get the tools</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<p class="kicker">Guide · 3PL finance ops</p>
+<h1>Reconcile Fulfyld Billing Detail Reports without losing the source row</h1>
+<p class="lede">Fulfyld publishes an itemized <strong>Billing Detail Report (BDR)</strong> per invoice. It is the right input for a tie-out — but only if every billed row keeps its original address, so a disputed line can be re-opened in the exact file it came from.</p>
+<h2>Getting the export</h2>
+<p>Fulfyld's billing guide describes itemized fee exports and provides a <strong>CSV attachment per invoice</strong> (delivered via Invoiced). The published example includes a service-type filter (<code>Charge_Category__c</code> in their example), so confirm the exact fee-label column in your own export before automating anything.</p>
+<h2>Fields that matter for a tie-out</h2>
+<div class="scroll"><table>
+<tr><th>Field</th><th>Use in reconciliation</th></tr>
+<tr><td>Date</td><td>Month bucket (normalize Excel serials to ISO dates first)</td></tr>
+<tr><td>Order number</td><td>Join key back to your order system</td></tr>
+<tr><td>SKU</td><td>Line-level identity</td></tr>
+<tr><td>Service type / fee label</td><td>Rollup label — keep the provider's exact wording</td></tr>
+<tr><td>Quantity</td><td>Sum only where supplied; blank stays blank</td></tr>
+<tr><td>Unit cost</td><td>Blank stays blank; do not infer</td></tr>
+<tr><td>Total</td><td>Signed amount — credits stay negative</td></tr>
+</table></div>
+<h2>The workflow</h2>
+<ol>
+<li><strong>Collect</strong> the BDR CSVs for the period, one per invoice. Keep the original filenames.</li>
+<li><strong>Normalize dates.</strong> Spreadsheet exports often carry Excel serial numbers; convert to <code>YYYY-MM-DD</code> before bucketing by month, or your rollup grows a "46114.3" month.</li>
+<li><strong>Roll up</strong> by provider × currency × month × exact fee label. Count rows, sum quantities only where present, sum signed totals.</li>
+<li><strong>Keep a source-reference sheet:</strong> for every billed row, the original file, worksheet (or CSV line), row address, label, total, and a SHA-256 of the source file. This is what makes a credit dispute fast: you hand the provider the exact line, not a screenshot.</li>
+<li><strong>Review exceptions</strong> — labels that changed wording mid-period, currencies mixed in one invoice, credits without a matching charge. The workbook surfaces them; a human decides.</li>
+</ol>
+<h2>What this is not</h2>
+<p>A consolidation and evidence workbook is <strong>not</strong> an error detector and not a ledger posting. It does not decide that a charge is wrong; it makes every charge re-openable. Published "3–15% billing leakage" figures in this market are vendor-reported — WareAudit's own site notes no independent study exists — so treat any error-rate claim, including ours if we ever made one, as marketing until measured on your own bills.</p>
+<div class="card">
+<h3>Do it with the tool</h3>
+<p>The <strong>Fulfillment Ledger</strong> reads any 3PL's CSV/XLSX exports (Fulfyld BDR included), builds both sheets in your browser, and never uploads a file. No API token, no Shopify install. Free evaluation; commercial use via a Polar license key at $49/month.</p>
+<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open / save the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
+</div>
+<p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. Accessed {TODAY}.</p>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
+    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+  </div>
+</footer>
+</body>
+</html>

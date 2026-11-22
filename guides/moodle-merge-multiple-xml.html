@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import multiple XML files into a Moodle question bank — Sync Sanctuary</title>
+<meta name="description" content="How to import multiple Moodle XML question banks into one bank — categories, duplicate ids, embedded files, and a verification receipt.">
+<link rel="canonical" href="https://rhemahq.com/guides/moodle-merge-multiple-xml.html">
+<meta property="og:title" content="Import multiple XML files into a Moodle question bank — Sync Sanctuary">
+<meta property="og:description" content="How to import multiple Moodle XML question banks into one bank — categories, duplicate ids, embedded files, and a verification receipt.">
+<meta property="og:url" content="https://rhemahq.com/guides/moodle-merge-multiple-xml.html">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/page.css">
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">sync<span>sanctuary</span></a>
+    <nav aria-label="Primary">
+      <a href="../#tools">Tools</a>
+      <a href="../#demos">Demos</a>
+      <a href="../guides/">Guides</a>
+      <a href="../#get">Get the tools</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<p class="kicker">Guide · Moodle</p>
+<h1>Import multiple XML files into a Moodle question bank</h1>
+<p class="lede">Moodle's import screen takes <strong>one file at a time</strong>. When a course arrives as several exported banks — per topic, per author, per legacy course — the naive loop loses categories, collides ids and silently drops embedded files. Here is the reliable path, and how to prove the result.</p>
+<h2>What Moodle XML actually carries</h2>
+<p>A Moodle XML export is a <code>&lt;quiz&gt;</code> element containing <code>&lt;question&gt;</code> elements. Two details matter when merging:</p>
+<ul>
+<li><strong>Categories are questions too.</strong> A <code>&lt;question type="category"&gt;</code> element sets the category for the questions that follow it, via a path like <code>$course$/top/Topic 1</code>. If you concatenate files without re-emitting category markers, later questions land in the wrong category — or the default one.</li>
+<li><strong>Embedded files are references.</strong> Images and media appear as <code>@@PLUGINFILE@@</code> URLs with base64 <code>&lt;file&gt;</code> elements. A merge that strips or re-encodes them breaks the question on import.</li>
+</ul>
+<h2>The manual path (and where it fails)</h2>
+<ol>
+<li>In the source course, export each bank: <em>Question bank → Export → Moodle XML format</em>, one category at a time.</li>
+<li>In the target course, import each file: <em>Question bank → Import → Moodle XML format</em>. Tick <strong>"Get category from file"</strong> if you want the export's category path honored; otherwise pick the category explicitly.</li>
+<li>Repeat per file. After each import, check the count shown against the source.</li>
+</ol>
+<p>Failure modes we see in practice: two files use the same question name (Moodle treats names as identifiers within a category, so the second can overwrite or duplicate); a file exported from an older Moodle carries category paths that no longer exist in the target; cloze subquestions are miscounted because they share the parent's name in some queries; embedded files import but render broken because the reference was rewritten.</p>
+<h2>The merged-file path</h2>
+<p>Instead of N imports, build <strong>one</strong> import file that re-emits a category marker whenever the category changes, preserves each question element byte-for-byte, and rejects duplicate <code>(category, id)</code> pairs before you ever touch Moodle:</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;quiz&gt;
+  &lt;question type="category"&gt;&lt;category&gt;&lt;text&gt;$course$/top/Topic 1&lt;/text&gt;&lt;/category&gt;&lt;/question&gt;
+  ...questions from bank A, unchanged...
+  &lt;question type="category"&gt;&lt;category&gt;&lt;text&gt;$course$/top/Topic 2&lt;/text&gt;&lt;/category&gt;&lt;/question&gt;
+  ...questions from bank B, unchanged...
+&lt;/quiz&gt;</code></pre>
+<p>Then import once, with "Get category from file" enabled. One import, one count to check, categories intact.</p>
+<h2>Prove it with a receipt</h2>
+<p>Before importing, produce a row per question: <strong>source file, category, id, source line, SHA-256 of the question element</strong>. After importing, export the target bank and compare counts per category and a sample of checksums. If a row is missing or changed, you know exactly which source line to re-open — not "something went wrong with 300 questions".</p>
+<div class="card">
+<h3>Do it with the tool</h3>
+<p>The <strong>Moodle Release Pack</strong> does the merge, the duplicate rejection and the receipt in your browser — nothing uploaded. Free evaluation; commercial use via a Polar license key. Verified by native import and round-trip on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1, including cloze subquestions, embedded files and teacher/student import permissions.</p>
+<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open / save the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
+</div>
+<h2>Limits</h2>
+<p>The merge preserves what you supplied; it does not author, regrade or approve questions. Import capability still depends on your role (editing teacher or above). The free WordTable plugin covers Word-table input but its published support stops at Moodle 5.0; native XML merge is a different job.</p>
+<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a> and <a href="https://docs.moodle.org/en/Moodle_XML_format">Moodle XML format</a>; version verification performed 2026-11-21 on disposable native installations. Accessed {TODAY}.</p>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
+    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OJS 3.5 galley production: Word to PDF, HTML and JATS — Sync Sanctuary</title>
+<meta name="description" content="OJS 3.5 production workflow guide: DOCX to PDF + HTML + JATS Publishing 1.2 galleys, DTD validation, and native galley registration.">
+<link rel="canonical" href="https://rhemahq.com/guides/ojs-35-galley-production.html">
+<meta property="og:title" content="OJS 3.5 galley production: Word to PDF, HTML and JATS — Sync Sanctuary">
+<meta property="og:description" content="OJS 3.5 production workflow guide: DOCX to PDF + HTML + JATS Publishing 1.2 galleys, DTD validation, and native galley registration.">
+<meta property="og:url" content="https://rhemahq.com/guides/ojs-35-galley-production.html">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/page.css">
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">sync<span>sanctuary</span></a>
+    <nav aria-label="Primary">
+      <a href="../#tools">Tools</a>
+      <a href="../#demos">Demos</a>
+      <a href="../guides/">Guides</a>
+      <a href="../#get">Get the tools</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<p class="kicker">Guide · Scholarly publishing</p>
+<h1>OJS 3.5 galley production: Word → PDF + HTML + JATS</h1>
+<p class="lede">OJS 3.5 is the current LTS line (3.5.0-6, released 2026-11-01). Its production stage expects you to <strong>supply galleys</strong>; it does not typeset your Word manuscript. This guide walks the native workflow and where a local conversion pipeline fits — including the parts that still need a human.</p>
+<h2>The native workflow</h2>
+<ol>
+<li>Submission reaches <strong>Production</strong> after copyediting. The production editor works from the final draft files.</li>
+<li><em>Publication → Galleys → Add galley</em>: give it a label (PDF, HTML, XML), upload the file, set language and rights.</li>
+<li>For HTML galleys, dependent files (images, CSS) are uploaded as <strong>dependent files</strong> of the galley.</li>
+<li>For JATS XML, OJS stores the file; rendering depends on your viewer (the Lens/eLens family has known maintenance problems — PKP staff say so plainly in the community forum).</li>
+<li>Assign galleys to the issue, set volume/issue metadata, and publish.</li>
+</ol>
+<h2>Producing the three formats from one Word source</h2>
+<p>A reproducible local pipeline:</p>
+<ol>
+<li><strong>DOCX → HTML</strong> with pandoc (<code>--to=html5</code>), preserving structure: abstract, headings, tables, figures, references.</li>
+<li><strong>DOCX → JATS</strong> with pandoc's <code>jats_publishing</code> writer, then insert the journal's volume/issue metadata into the XML.</li>
+<li><strong>Validate JATS</strong> against the official Publishing 1.2 MathML2 DTD. A galley that fails DTD validation will fail downstream indexing — validate before upload, not after.</li>
+<li><strong>HTML → PDF</strong> with a paged-media renderer (a headless browser print pipeline works; commercial engines like PrinceXML offer PDF/UA). Two-column layout, running heads, figure placement.</li>
+<li><strong>Register</strong> the three files on the submission via OJS's galley repositories (or the UI), associate figures as dependent files, and verify stored checksums match the originals.</li>
+</ol>
+<div class="card">
+<h3>Verified, not asserted</h3>
+<p>This pipeline was executed end-to-end on a disposable <strong>OJS 3.5.0.4</strong> installation: a generated DOCX produced PDF, HTML and JATS; the JATS passed the official Publishing 1.2 MathML2 DTD; all three galleys registered natively on one draft with the PNG associated as a dependent file; MIME types matched and all four files matched their original SHA-256 in OJS private storage.</p>
+<p><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the evaluation zip</a><a class="cta" href="../#get">License and pricing</a></p>
+</div>
+<h2>Honest limits</h2>
+<ul>
+<li><strong>Complex layouts need an editor.</strong> Free DOCX→JATS converters (including the OJS <code>docxConverter</code> plugin) handle simple articles; a journal editor in the PKP forum reports their journal was "too complex for it". Multi-column figures, custom floats and heavy math still need review.</li>
+<li><strong>JATS display is a separate problem.</strong> Producing valid JATS does not give you a working in-OJS viewer; plan for the viewer maintenance risk.</li>
+<li><strong>Native production is coming.</strong> PKP's lead has stated OJS will integrate an OS-APS/SciFlow-derived editor with in-browser HTML→PDF (Vivliostyle), targeted at 3.6, with DOCX import still at pilot stage as of late 2025. JATS export is not in that stated plan. Watch the 3.6 release notes before assuming any external tool is permanently necessary.</li>
+<li><strong>Version drift.</strong> Our native verification ran on 3.5.0.4; 3.5.0-6 is current. Re-run the fixture on your exact version before relying on it.</li>
+</ul>
+<h2>When a subscription beats per-article</h2>
+<p>Per-article services run $5–$49/article in the current market. A $59/month local pipeline breaks even against a $25/article service at roughly 3 articles/month, and against $25/article at ~29 articles/year if you only need XML — the three-format bundle plus local, editable source is what changes the math for a journal producing ~40 articles/year.</p>
+<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>; <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>; <a href="https://forum.pkp.sfu.ca/t/info-on-tech-stack-behind-new-article-production-in-ojs-3-5-3-6/97196">PKP forum thread 97196</a> (staff statements, Oct 2025); <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a> (3.5.0-6, Nov 2026). Accessed {TODAY}.</p>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
+    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+  </div>
+</footer>
+</body>
+</html>

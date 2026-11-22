@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sync Sanctuary — every source, accounted for</title>
 <meta name="description" content="Three small tools that turn the files you already have into a finished, checkable handoff: journal galleys, a tied-out fulfillment workbook, a verified Moodle question bank. They run on your machine; the proof travels with the output.">
+<link rel="canonical" href="https://rhemahq.com/">
+<meta property="og:title" content="Sync Sanctuary — every source, accounted for">
+<meta property="og:description" content="Local tools for OJS galley production, 3PL invoice reconciliation and Moodle question-bank releases. Free demos and evaluation downloads; the proof travels with the output.">
+<meta property="og:url" content="https://rhemahq.com/">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -151,7 +156,7 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <div class="nav-in glass">
     <a class="brand" href="#top">sync<span>sanctuary</span></a>
     <nav class="links" aria-label="Primary">
-      <a href="#tools">Tools</a><a href="#demos">Demos</a><a href="#method">Method</a>
+      <a href="#tools">Tools</a><a href="#demos">Demos</a><a href="#method">Method</a><a href="./guides/">Guides</a>
     </nav>
     <a class="pill cta" href="#access">Get early access<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>
@@ -187,19 +192,19 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <article class="tool reveal">
     <div class="tool-meta"><span class="idx">01</span><span class="status live">download + license</span></div>
     <h3>OJS Galley Studio</h3>
-    <p>Renders a Word manuscript and its metadata into a two-column PDF, standalone HTML and JATS Publishing 1.2 XML, then hands them to OJS's add-galley action. The editor approves layout, names and rights.</p>
+    <p>One Word source becomes a two-column PDF, standalone HTML and <em>DTD-valid JATS Publishing 1.2 XML</em>, registered on OJS's add-galley action. Built for the layouts free DOCX converters choke on; the editor approves layout, names and rights.</p>
     <ul class="proof"><li>Verified on OJS 3.5.0.4</li><li>JATS 1.2 DTD clean</li><li>PDF · HTML · JATS</li></ul>
   </article>
   <article class="tool reveal">
     <div class="tool-meta"><span class="idx">02</span><span class="status live">demo + download</span></div>
     <h3>Fulfillment Ledger</h3>
-    <p>Consolidates 3PL invoice exports into one reconciliation workbook: every fee label rolled up by provider, month and currency, and every billed row kept with its original file, worksheet, line and file hash.</p>
-    <ul class="proof"><li>Edge + native Excel</li><li>CSV · XLSX in, XLSX out</li><li>Per-row source address</li></ul>
+    <p>Any 3PL's CSV/XLSX bills — no API token, no Shopify install, nothing uploaded. Fees roll up by provider, month, currency and exact label; every billed row keeps its original file, worksheet, line and SHA-256, so a credit dispute points at the exact line.</p>
+    <ul class="proof"><li>Any 3PL · offline</li><li>Per-row source address</li><li>Edge + native Excel</li></ul>
   </article>
   <article class="tool reveal">
     <div class="tool-meta"><span class="idx">03</span><span class="status live">demo + download</span></div>
     <h3>Moodle Release Pack</h3>
-    <p>Merges approved Moodle XML question banks into a single import file plus a row-by-row receipt — category, stable id, source line and checksum — so a reviewer can spot-check before importing.</p>
+    <p>Institution-grade release: merges exported Moodle XML banks across files, preserves categories and embedded files, and issues a per-question receipt — category, stable id, source line, SHA-256 — a reviewer can spot-check before importing. Verified beyond the free WordTable plugin's Moodle 5.0 ceiling.</p>
     <ul class="proof"><li>Moodle 4.5.16 / 5.2.5 / 5.3.1</li><li>6 types incl. Cloze</li><li>Embedded files preserved</li></ul>
   </article>
 </section>
@@ -211,10 +216,10 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <div class="demo glass reveal" id="demo-ledger">
     <header><h3>Fulfillment Ledger</h3><p>CSV / XLSX invoice exports → one tied-out workbook.</p></header>
     <div class="demo-controls">
-      <button class="pill" data-sample="ledger">Load synthetic sample</button>
-      <label class="pill file">Choose file<input type="file" id="ledger-file" accept=".csv,.xlsx,.xls"></label>
-      <button class="pill solid" id="ledger-run" disabled>Build workbook</button>
-      <button class="pill" id="ledger-download" disabled>Download .xlsx</button>
+      <button class="pill" data-sample="ledger" data-track="demo_start" data-product="n27">Load synthetic sample</button>
+      <label class="pill file">Choose file<input type="file" id="ledger-file" accept=".csv,.xlsx,.xls" data-track="demo_upload" data-product="n27"></label>
+      <button class="pill solid" id="ledger-run" disabled data-track="demo_build" data-product="n27">Build workbook</button>
+      <button class="pill" id="ledger-download" disabled data-track="demo_download" data-product="n27">Download .xlsx</button>
     </div>
     <div class="demo-out"><div id="ledger-summary"></div><div id="ledger-sources"></div></div>
     <p class="demo-note" id="ledger-note">Runs entirely on this page. Credits stay signed; blank unit prices stay blank.</p>
@@ -223,10 +228,10 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
   <div class="demo glass reveal" id="demo-moodle">
     <header><h3>Moodle Release Pack</h3><p>Moodle XML banks → one import file + source receipt.</p></header>
     <div class="demo-controls">
-      <button class="pill" data-sample="moodle">Load synthetic sample</button>
-      <label class="pill file">Choose .xml<input type="file" id="moodle-file" accept=".xml,text/xml"></label>
-      <button class="pill solid" id="moodle-run" disabled>Build release</button>
-      <button class="pill" id="moodle-download" disabled>Download import .xml</button>
+      <button class="pill" data-sample="moodle" data-track="demo_start" data-product="n31">Load synthetic sample</button>
+      <label class="pill file">Choose .xml<input type="file" id="moodle-file" accept=".xml,text/xml" data-track="demo_upload" data-product="n31"></label>
+      <button class="pill solid" id="moodle-run" disabled data-track="demo_build" data-product="n31">Build release</button>
+      <button class="pill" id="moodle-download" disabled data-track="demo_download" data-product="n31">Download import .xml</button>
     </div>
     <div class="demo-out"><div id="moodle-counts"></div><div id="moodle-receipt"></div></div>
     <p class="demo-note" id="moodle-note">Counts per category and a checksum per item. The institution approves grading and content.</p>
@@ -243,36 +248,38 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
 </section>
 
 <div class="marquee" aria-hidden="true"><div class="track" id="marquee">
-  <span>DOCX</span><span>JATS 1.2</span><span>PDF</span><span>HTML</span><span>CSV</span><span>XLSX</span><span>Moodle XML</span><span>GIFT</span><span>Cloze</span><span>SHA-256</span><span>OJS 3.5</span><span>Moodle 4.5–5.2</span>
+  <span>DOCX</span><span>JATS 1.2</span><span>PDF</span><span>HTML</span><span>CSV</span><span>XLSX</span><span>Moodle XML</span><span>GIFT</span><span>Cloze</span><span>SHA-256</span><span>OJS 3.5</span><span>Moodle 4.5 · 5.2 · 5.3</span>
 </div></div>
 
 <section class="get" id="get">
   <h2 class="reveal">Get the <em>tools</em>.</h2>
-  <p class="sec-lede reveal">Downloads are free for evaluation. A Polar license key unlocks commercial use and support; checkout is handled by Polar as merchant of record.</p>
+  <p class="sec-lede reveal">Downloads are free for evaluation. A Polar license key unlocks commercial use and support; Polar is merchant of record for tax, receipts and refunds. <a class="quiet" href="./refund.html">Refund policy</a> · <a class="quiet" href="./procurement.html">Institutional procurement</a> · <a class="quiet" href="./services.html">Done-for-you</a></p>
   <div class="get-row reveal">
     <div><h3>OJS Galley Studio</h3><p class="get-price">$59 / month · GPL-3.0 companion scripts</p></div>
-    <div class="get-links"><a class="pill" href="./tools/ojs-galley-studio.zip">Download .zip</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_oYpKZOhybJSKDXGNpBX2cgRC5MuWHki2MZM96264pL2">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    <div class="get-links"><a class="pill" href="./tools/ojs-galley-studio.zip" data-track="eval_download" data-product="n13">Download .zip</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_oYpKZOhybJSKDXGNpBX2cgRC5MuWHki2MZM96264pL2?utm_source=rhemahq&amp;utm_medium=site&amp;utm_campaign=n13_galley" data-track="checkout_click" data-product="n13">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
   </div>
   <div class="get-row reveal">
     <div><h3>Fulfillment Ledger</h3><p class="get-price">$49 / month · offline browser tool</p></div>
-    <div class="get-links"><a class="pill" href="./tools/ledger/index.html">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_IVdlZd6WU4wcJhtc6DyBFYXBdMOFMejVklGoy254e9F">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    <div class="get-links"><a class="pill" href="./tools/ledger/index.html" data-track="eval_download" data-product="n27">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_IVdlZd6WU4wcJhtc6DyBFYXBdMOFMejVklGoy254e9F?utm_source=rhemahq&amp;utm_medium=site&amp;utm_campaign=n27_ledger" data-track="checkout_click" data-product="n27">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
   </div>
   <div class="get-row reveal">
     <div><h3>Moodle Release Pack</h3><p class="get-price">$499 / year · offline browser tool</p></div>
-    <div class="get-links"><a class="pill" href="./tools/moodle/index.html">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_z5qkgHnOO6GtdhD9UKfoMhnnLTCVEnRIwoNmi15D72I">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    <div class="get-links"><a class="pill" href="./tools/moodle/index.html" data-track="eval_download" data-product="n31">Open / save tool</a><a class="pill solid" href="https://buy.polar.sh/polar_cl_z5qkgHnOO6GtdhD9UKfoMhnnLTCVEnRIwoNmi15D72I?utm_source=rhemahq&amp;utm_medium=site&amp;utm_campaign=n31_moodle" data-track="checkout_click" data-product="n31">Buy license<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
   </div>
 </section>
 
 <section class="access" id="access">
   <h2 class="reveal">Questions? <em>Talk</em> to us.</h2>
-  <p class="sec-lede reveal">Evaluation is free; commercial licenses are live above. For pilots, volume seats or authorized real-input validation, write to us.</p>
-  <a class="pill cta solid reveal" href="mailto:support@trimprocure.com?subject=Early%20access%20—%20Sync%20Sanctuary">Email support@trimprocure.com<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <p class="sec-lede reveal">Evaluation is free; commercial licenses are live above. For pilots, volume seats, purchase orders or authorized real-input validation, write to Sync Sanctuary support. Purchases, invoices and refunds are handled by Polar as merchant of record.</p>
+  <a class="pill cta solid reveal" href="mailto:support@trimprocure.com?subject=Sync%20Sanctuary%20—%20question" data-track="support_click">Email Sync Sanctuary support<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <p class="sec-lede reveal" style="margin-top:22px"><a class="quiet" href="./procurement.html">Institutional procurement one-pager</a> · <a class="quiet" href="./services.html">Done-for-you handoffs</a> · <a class="quiet" href="./guides/">Guides</a></p>
 </section>
 </main>
 
 <footer class="foot">
   <p>© 2026 Sync Sanctuary · rhemahq.com</p>
-  <p class="foot-note">Capabilities verified on synthetic fixtures; live customer validation in progress. <a href="mailto:support@trimprocure.com">Contact</a></p>
+  <p class="foot-note">Capabilities verified on synthetic fixtures; live customer validation in progress.</p>
+  <p><a href="./refund.html">Refunds</a> · <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./guides/">Guides</a> · <a href="mailto:support@trimprocure.com">Contact</a></p>
 </footer>
 
 <script type="importmap">
@@ -281,5 +288,6 @@ section{max-width:1200px;margin:0 auto;padding:96px 24px}
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="module" src="./src/scene.js"></script>
 <script type="module" src="./src/site.js"></script>
+<script type="module" src="./src/track.js"></script>
 </body>
 </html>

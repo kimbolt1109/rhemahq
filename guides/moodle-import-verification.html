@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify a Moodle question import: counts, categories, checksums — Sync Sanctuary</title>
+<meta name="description" content="How to verify a Moodle question bank import actually preserved every question, category, cloze field and embedded file — with a checksum receipt.">
+<link rel="canonical" href="https://rhemahq.com/guides/moodle-import-verification.html">
+<meta property="og:title" content="Verify a Moodle question import: counts, categories, checksums — Sync Sanctuary">
+<meta property="og:description" content="How to verify a Moodle question bank import actually preserved every question, category, cloze field and embedded file — with a checksum receipt.">
+<meta property="og:url" content="https://rhemahq.com/guides/moodle-import-verification.html">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/page.css">
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">sync<span>sanctuary</span></a>
+    <nav aria-label="Primary">
+      <a href="../#tools">Tools</a>
+      <a href="../#demos">Demos</a>
+      <a href="../guides/">Guides</a>
+      <a href="../#get">Get the tools</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<p class="kicker">Guide · Moodle</p>
+<h1>Verify a Moodle question import, line by line</h1>
+<p class="lede">"Import successful" is not evidence. Moodle can report success while a category collapsed, a duplicate name overwrote a question, or an embedded file broke. This is a spot-check procedure you can run in ten minutes, and the receipt that makes it mechanical.</p>
+<h2>What silently goes wrong</h2>
+<ul>
+<li><strong>Category drift.</strong> Without "Get category from file", everything lands in the chosen category; with it, a stale path can create an unexpected one.</li>
+<li><strong>Name collisions.</strong> Question names act as identifiers within a category. Two banks using "Q1" collide.</li>
+<li><strong>Cloze undercount.</strong> Cloze subquestions can share the parent name in indexed queries; a naive count reports <code>shortanswer</code> children as separate questions or misses them.</li>
+<li><strong>Embedded files.</strong> Base64 <code>&lt;file&gt;</code> payloads must survive byte-for-byte; a rewritten <code>@@PLUGINFILE@@</code> reference renders broken.</li>
+<li><strong>Settings loss.</strong> Default marks, penalties, shuffle flags and answer fractions are easy to drop in a hand-rolled conversion.</li>
+</ul>
+<h2>The ten-minute spot-check</h2>
+<ol>
+<li><strong>Count per category, not total.</strong> Export the target bank (Moodle XML) and count top-level questions per category. Compare against the source counts. Totals can match while two categories swapped contents.</li>
+<li><strong>Check top-level vs children.</strong> Count cloze parents separately from their subquestions; verify each parent's child count and answer settings.</li>
+<li><strong>Sample five questions across types</strong> (multichoice with multiple correct, truefalse, shortanswer case sensitivity, numerical tolerance, essay attachment config). Open each in the preview and confirm grading settings.</li>
+<li><strong>Hash the embedded files.</strong> Extract each <code>&lt;file&gt;</code> payload from source and target exports and compare SHA-256. Equal hashes mean the bytes survived.</li>
+<li><strong>Test permissions.</strong> Confirm an editing teacher can import and re-export, and a student cannot import — the capability check, not just the happy path.</li>
+</ol>
+<h2>Make it a receipt instead of a ritual</h2>
+<p>A receipt row per question — <strong>source file, category, id, type, source line, SHA-256 of the question element</strong> — turns the spot-check into a diff. Re-run the export after import, recompute hashes, and any mismatch points at an exact source line. Keep the receipt with the release record so an auditor can re-open what was read.</p>
+<div class="card">
+<h3>Do it with the tool</h3>
+<p>The <strong>Moodle Release Pack</strong> emits the merged import file and this receipt together, rejects duplicate <code>(category, id)</code> pairs, and preserves embedded files. The identical contract was verified natively on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1: seven questions, six types, category split, cloze fields, four embedded attachments, teacher import and student denial.</p>
+<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open / save the tool</a></p>
+</div>
+<h2>Limits</h2>
+<p>Verification proves the bytes and settings you supplied survived. It does not prove the questions are pedagogically sound, correctly keyed, or approved for release — those remain the institution's decisions.</p>
+<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a>, <a href="https://docs.moodle.org/en/Export_questions">Export questions</a>; native contract checks 2026-11-21. Accessed {TODAY}.</p>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
+    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+  </div>
+</footer>
+</body>
+</html>
