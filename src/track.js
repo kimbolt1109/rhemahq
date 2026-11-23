@@ -13,16 +13,17 @@ export function buildUtm(href, params) {
 }
 
 export function createQueue(sink) {
-  let buf = [];
+  const buf = [];
+  function flush() {
+    if (sink && buf.length && sink(buf.slice()) !== false) buf.length = 0;
+    return buf.length;
+  }
   return {
     push(ev) {
       buf.push({ ...ev, ts: Date.now() });
-      if (sink) sink(buf.splice(0));
+      flush();
     },
-    flush() {
-      if (sink && buf.length) sink(buf.splice(0));
-      return buf.length;
-    },
+    flush,
     get pending() {
       return buf.length;
     },
@@ -32,25 +33,31 @@ export function createQueue(sink) {
 /* ---------------- browser wiring (DOM only) ---------------- */
 if (typeof document !== "undefined") {
   const sink = (events) => {
-    for (const e of events) {
-      if (typeof window.plausible === "function") window.plausible(e.event, { props: e });
-      else if (Array.isArray(window.dataLayer)) window.dataLayer.push(e);
+    if (typeof window.plausible === "function") {
+      for (const e of events) window.plausible(e.event, { props: e });
+      return true;
     }
+    if (!Array.isArray(window.dataLayer)) return false;
+    for (const e of events) window.dataLayer.push(e);
+    return true;
   };
-  const hasSink = typeof window.plausible === "function" || Array.isArray(window.dataLayer);
-  const queue = createQueue(hasSink ? sink : null);
+  const queue = createQueue(sink);
 
   queue.push({ event: "page_view", path: location.pathname });
 
-  document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-track]");
+  function track(e) {
+    const t = e.target.closest?.("[data-track]");
     if (!t) return;
+    if ((t.dataset.track === "demo_upload") !== (e.type === "change")) return;
+    if (e.type === "change" && !t.files?.length) return;
     queue.push({
       event: t.dataset.track,
       product: t.dataset.product || null,
       href: t.getAttribute("href") || null,
     });
-  });
+  }
+  document.addEventListener("click", track, true);
+  document.addEventListener("change", track, true);
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") queue.flush();

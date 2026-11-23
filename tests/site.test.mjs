@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { reconcileRows, sha256Hex, buildMoodleRelease, LEDGER_SAMPLE, MOODLE_SAMPLE } from "../src/site.js";
 import { buildUtm, createQueue } from "../src/track.js";
 test("reconcile rolls up fees and keeps source addresses", () => {
@@ -18,6 +19,21 @@ test("credit stays signed", () => {
 test("sha256 is 64 hex", async () => {
   const h = await sha256Hex("abc");
   assert.match(h, /^[0-9a-f]{64}$/);
+});
+test("source hash preserves binary workbook bytes", async () => {
+  const bytes = Uint8Array.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0xc0, 0x00]);
+  const expected = createHash("sha256").update(bytes).digest("hex");
+  assert.equal(await sha256Hex(bytes.buffer), expected);
+});
+test("rollup keeps fractional amounts and leaves mixed unit prices blank", () => {
+  const seed = { ...LEDGER_SAMPLE[0], currency: "KWD" };
+  const { summary, sources } = reconcileRows([
+    { ...seed, unit: 0.123, total: 0.369 },
+    { ...seed, unit: 0.031, total: -0.031 },
+  ]);
+  assert.equal(summary[0].total, 0.338);
+  assert.equal(summary[0].unit, null);
+  assert.equal(sources[1].total, -0.031);
 });
 test("moodle release counts + receipt + duplicate rejection", async () => {
   const out = await buildMoodleRelease(MOODLE_SAMPLE);
@@ -54,4 +70,19 @@ test("event queue buffers without a sink and forwards with one", () => {
   assert.equal(sent.length, 1);
   assert.equal(sent[0].event, "page_view");
   assert.equal(typeof sent[0].ts, "number");
+});
+test("a late analytics sink receives the buffered events in order", () => {
+  let ready = false;
+  const sent = [];
+  const queue = createQueue((events) => {
+    if (!ready) return false;
+    sent.push(...events);
+    return true;
+  });
+  queue.push({ event: "page_view" });
+  assert.equal(queue.pending, 1);
+  ready = true;
+  queue.push({ event: "demo_upload" });
+  assert.deepEqual(sent.map(({ event }) => event), ["page_view", "demo_upload"]);
+  assert.equal(queue.pending, 0);
 });

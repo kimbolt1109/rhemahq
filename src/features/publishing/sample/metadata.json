@@ -1,0 +1,19 @@
+{
+  "title": "A repeatable editorial handoff",
+  "author": [
+    {
+      "given-names": "Sample",
+      "surname": "Editor"
+    }
+  ],
+  "date": "2026-11-23",
+  "abstract": "A synthetic production note for comparing the print, web, and structured outputs from one accepted manuscript.",
+  "journal": {
+    "title": "Rhema Production Notes",
+    "id": "rhema-production-notes"
+  },
+  "article-type": "research-article",
+  "volume": "1",
+  "issue": "1",
+  "lang": "en"
+}

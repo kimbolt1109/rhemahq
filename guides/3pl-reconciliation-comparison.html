@@ -10,36 +10,35 @@
 <meta property="og:description" content="Compare 3PL invoice reconciliation tools in 2026: Cartwright Labs, WareAudit, SKU.io and an offline workbook — prices, inputs, hosting and source evidence.">
 <meta property="og:url" content="https://rhemahq.com/guides/3pl-reconciliation-comparison.html">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23214337'/><path d='M9,17l5,5l9,-11' stroke='%23DDE9CF' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/page.css">
 
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="../">sync<span>sanctuary</span></a>
-    <nav aria-label="Primary">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav class="main-nav" aria-label="Primary">
       <a href="../#tools">Tools</a>
       <a href="../#demos">Demos</a>
       <a href="../guides/">Guides</a>
-      <a href="../#get">Get the tools</a>
     </nav>
+    <a class="button header-action" href="../#get">Get the tools <span aria-hidden="true">↗</span></a>
   </div>
 </header>
-<main class="wrap">
-
+<main class="container page-content" id="main">
+<nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">← All guides</a></nav>
 <p class="kicker">Guide · 3PL finance ops</p>
 <h1>3PL billing reconciliation: four options, honestly compared</h1>
 <p class="lede">Prices and scopes below were read from vendor pages on 2026-11-22. They change; check before you buy. We sell one of these options, so read the "what it does not do" column first.</p>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="3PL tool comparison"><table>
 <tr><th>Option</th><th>Price (as read)</th><th>Inputs</th><th>Hosting</th><th>Evidence per finding</th></tr>
 <tr><td><strong>Cartwright Labs — ShipBob Billing Reconciler</strong></td><td class="num">$49/mo from run 3; first two runs free; billed via Shopify</td><td>Shopify orders/fulfillments/refunds ↔ ShipBob shipments/billing, via API install + token</td><td>Hosted app</td><td>Findings list, 8 checks over 7/14/30-day windows; sample PDF</td></tr>
 <tr><td><strong>WareAudit</strong></td><td class="num">$149/mo Starter (≤3,000 orders); $299 one-off (3 months of bills); ~10% annual discount</td><td>Any-3PL CSV upload</td><td>Hosted</td><td>Findings reports; evidence column labeled provider Line ID</td></tr>
 <tr><td><strong>SKU.io</strong></td><td class="num">from $1,000/mo</td><td>Synced ShipBob bills (account connection)</td><td>Hosted</td><td>Groups by original fee name, count, total; export omits original file/worksheet/row</td></tr>
-<tr><td><strong>Fulfillment Ledger (ours)</strong></td><td class="num">$49/mo</td><td>Any 3PL CSV/XLSX you already hold</td><td><strong>Local browser; nothing uploaded</strong></td><td>Per-row original file, worksheet/line, SHA-256 of source; rollup + source-reference sheets</td></tr>
+<tr><td><strong>Fulfillment Ledger (ours)</strong></td><td class="num">$49/mo</td><td>CSV or Excel with the tool's expected headers</td><td><strong>Local browser; nothing uploaded</strong></td><td>Per-row original file, worksheet/line, SHA-256 of source; rollup + source-reference sheets</td></tr>
 </table></div>
 <h2>How to choose</h2>
 <ul>
@@ -55,15 +54,17 @@
 <div class="card">
 <h3>Try before you buy</h3>
 <p>Free evaluation download and a live browser demo with a synthetic sample — run your own export through it, nothing uploaded.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open / save the tool</a><a class="cta" href="./fulfyld-bdr-reconciliation.html">Fulfyld BDR guide</a></p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open the tool</a><a class="cta" href="./fulfyld-bdr-reconciliation.html">Fulfyld BDR guide</a></p>
 </div>
-<p class="note">Sources opened 2026-11-22: <a href="https://www.cartwrightlabs.com/shipbob-billing-audit/">cartwrightlabs.com</a>, <a href="https://wareaudit.com/">wareaudit.com</a>, <a href="https://www.sku.io/pricing/">sku.io/pricing</a>. Cartwright was in private pilot at reading time. Accessed {TODAY}.</p>
-
+<p class="note">Sources opened 2026-11-22: <a href="https://www.cartwrightlabs.com/shipbob-billing-audit/">cartwrightlabs.com</a>, <a href="https://wareaudit.com/">wareaudit.com</a>, <a href="https://www.sku.io/pricing/">sku.io/pricing</a>. Cartwright was in private pilot at reading time. </p>
 </main>
-<footer>
-  <div class="wrap">
-    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
-    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav aria-label="Footer">
+      <a href="../guides/">Guides</a><a href="../refund.html">Refunds</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </nav>
+    <p>© 2026 Sync Sanctuary</p>
   </div>
 </footer>
 </body>

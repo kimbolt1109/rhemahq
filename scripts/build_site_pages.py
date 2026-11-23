@@ -1,86 +1,18 @@
 """Emit the static trust, guide, procurement, service and post-checkout pages for rhemahq.com.
 
 Run:  python -X utf8 scripts/build_site_pages.py
-Writes into ../site relative to this script's project root. Idempotent: overwrites only the
-files it owns (listed in EMITTED). No data files are read; prices are the public Polar prices
-verified 2026-11-23 ($59/mo N13, $49/mo N27, $499/yr N31).
+Writes pages and search metadata into the site root. The sitemap also includes
+product routes from the catalog. Guide prices were verified 2026-11-23.
 """
+import json
+from html import escape
 from pathlib import Path
 from string import Template
 
-ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "site" if (ROOT / "site").is_dir() else ROOT
+SITE = Path(__file__).resolve().parents[1]
 BASE = "https://rhemahq.com"
 TODAY = "2026-11-23"
 SUPPORT = "support@trimprocure.com"  # swap to support@rhemahq.com once the domain mailbox exists
-
-CSS = """
-:root{--void:#060709;--panel:rgba(255,255,255,.025);--line:rgba(255,255,255,.09);
---ink:rgba(255,255,255,.92);--ink2:rgba(255,255,255,.66);--ink3:rgba(255,255,255,.42);
---paper:#E6E1D3;--verify:#00E38C;--serif:"Instrument Serif",serif;--sans:"Inter",system-ui,sans-serif;
---mono:"JetBrains Mono",monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
-*{box-sizing:border-box;margin:0}
-body{background:var(--void);color:var(--ink);font:400 16px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
-a{color:var(--paper);text-decoration:none;border-bottom:1px solid var(--line)}
-a:hover{border-color:var(--paper)}
-::selection{background:var(--paper);color:var(--void)}
-:focus-visible{outline:2px solid var(--paper);outline-offset:3px;border-radius:4px}
-.wrap{max-width:820px;margin:0 auto;padding:0 24px}
-header.top{border-bottom:1px solid var(--line);padding:18px 0;margin-bottom:48px}
-header.top .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.brand{font:500 15px var(--mono);color:var(--ink);border:0}
-.brand span{color:var(--paper)}
-header.top nav{margin-left:auto;display:flex;gap:16px;font-size:14px}
-header.top nav a{color:var(--ink2);border:0}
-header.top nav a:hover{color:var(--ink)}
-h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.02em;line-height:1.1}
-h1{font-size:clamp(2.2rem,5vw,3.4rem);margin-bottom:14px}
-h2{font-size:1.7rem;margin:44px 0 12px;color:var(--paper)}
-h3{font-size:1.25rem;margin:28px 0 8px}
-p{margin:12px 0;color:var(--ink2)}
-strong{color:var(--ink);font-weight:600}
-em{color:var(--paper)}
-ul,ol{margin:12px 0 12px 22px;color:var(--ink2)}
-li{margin:6px 0}
-code{font:400 13.5px var(--mono);color:var(--verify);background:rgba(0,227,140,.07);border:1px solid rgba(0,227,140,.18);border-radius:5px;padding:1px 6px}
-pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto;margin:16px 0}
-pre code{background:none;border:0;padding:0;color:var(--ink2);font-size:12.5px;line-height:1.8}
-.kicker{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
-.lede{font-size:17px;color:var(--ink2);max-width:62ch}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin:22px 0}
-.card h3{margin-top:0}
-.cta{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:11px 20px;font:500 14px var(--sans);color:var(--ink);background:rgba(255,255,255,.03);margin:6px 8px 6px 0}
-.cta:hover{background:rgba(255,255,255,.07);border-color:var(--paper)}
-.cta.solid{background:var(--paper);color:var(--void);border-color:transparent}
-.cta.solid:hover{background:#f2eee2}
-table{width:100%;border-collapse:collapse;font:400 13px var(--mono);margin:16px 0}
-.scroll{overflow-x:auto}
-th{font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink2);vertical-align:top}
-td.num{text-align:right;color:var(--ink)}
-.note{font-size:13px;color:var(--ink3);border-left:2px solid var(--line);padding-left:14px;margin:18px 0}
-.ok{color:var(--verify)}
-footer{border-top:1px solid var(--line);margin-top:72px;padding:30px 0 48px;color:var(--ink3);font-size:13px}
-footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
-footer a{color:var(--ink2)}
-.guide-list{list-style:none;margin:24px 0 0}
-.guide-list li{border-top:1px solid var(--line);padding:18px 0;margin:0}
-.guide-list a{font-family:var(--serif);font-size:1.3rem;color:var(--ink);border:0}
-.guide-list a:hover{color:var(--paper)}
-.guide-list p{margin:6px 0 0;font-size:14px}
-@media (max-width:640px){header.top nav{margin-left:0;width:100%}.wrap{padding:0 18px}}
-@media print{
-  body{background:#fff;color:#111;font-size:12px}
-  a{color:#111;border:0}
-  header.top nav,.cta,footer .nav-links{display:none}
-  h1,h2,h3,.brand span{color:#111}
-  p,li,td{color:#222}
-  .card{border:1px solid #ccc;background:#fff}
-  code{color:#111;background:#f4f4f4;border-color:#ddd}
-  .kicker,.note,th{color:#555}
-  footer{color:#555;border-color:#ccc}
-}
-"""
 
 TPL = Template("""<!doctype html>
 <html lang="en">
@@ -94,32 +26,34 @@ TPL = Template("""<!doctype html>
 <meta property="og:description" content="$desc">
 <meta property="og:url" content="$canonical">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-<link rel="stylesheet" href="$css_href">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23214337'/><path d='M9,17l5,5l9,-11' stroke='%23DDE9CF' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="${root_href}assets/base.css">
+<link rel="stylesheet" href="${root_href}assets/page.css">
 $extra_head
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="$root_href">sync<span>sanctuary</span></a>
-    <nav aria-label="Primary">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="$root_href"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav class="main-nav" aria-label="Primary">
       <a href="$root_href#tools">Tools</a>
       <a href="$root_href#demos">Demos</a>
-      <a href="$guides_href">Guides</a>
-      <a href="$root_href#get">Get the tools</a>
+      <a href="$guides_href"$guide_current>Guides</a>
     </nav>
+    <a class="button header-action" href="$root_href#get">Get the tools <span aria-hidden="true">↗</span></a>
   </div>
 </header>
-<main class="wrap">
-$body
+<main class="container page-content" id="main">
+$breadcrumb$body
 </main>
-<footer>
-  <div class="wrap">
-    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
-    <p class="nav-links"><a href="${root_href}refund.html">Refunds</a> · <a href="${root_href}privacy.html">Privacy</a> · <a href="${root_href}terms.html">Terms</a> · <a href="${root_href}procurement.html">Procurement</a> · <a href="mailto:$support">Support</a></p>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand" href="$root_href"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav aria-label="Footer">
+      <a href="$guides_href">Guides</a><a href="${root_href}refund.html">Refunds</a><a href="${root_href}privacy.html">Privacy</a><a href="${root_href}terms.html">Terms</a>
+    </nav>
+    <p>© 2026 Sync Sanctuary</p>
   </div>
 </footer>
 </body>
@@ -129,25 +63,30 @@ $body
 EMITTED = []
 
 
-def emit(rel: str, title: str, desc: str, body: str, extra_head: str = ""):
+def emit(rel: str, title: str, desc: str, body: str, *, indexable: bool = True):
     path = SITE / rel
     depth = rel.count("/")
     root_href = "../" * depth if depth else "./"
-    css_href = root_href + "assets/page.css"
     guides_href = root_href + "guides/"
+    canonical_path = "guides/" if rel == "guides/index.html" else rel
+    breadcrumb = ""
+    if depth and rel != "guides/index.html":
+        breadcrumb = '<nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">← All guides</a></nav>\n'
     html = TPL.substitute(
-        title=title, desc=desc, canonical=BASE + "/" + rel, css_href=css_href,
-        root_href=root_href, guides_href=guides_href, support=SUPPORT,
-        extra_head=extra_head, body=body,
+        title=escape(title), desc=escape(desc), canonical=BASE + "/" + canonical_path,
+        root_href=root_href, guides_href=guides_href,
+        guide_current=' aria-current="page"' if rel == "guides/index.html" else "",
+        extra_head="" if indexable else '<meta name="robots" content="noindex, follow">',
+        breadcrumb=breadcrumb, body=body.strip(),
     )
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(html, encoding="utf-8")
-    EMITTED.append(rel)
+    path.write_text(html, encoding="utf-8", newline="\n")
+    EMITTED.append((rel, canonical_path, indexable))
 
 
 def cta_row(root="./"):
     return (
-        f'<p><a class="cta solid" href="{root}#get">Get the tools</a>'
+        f'<p class="page-actions"><a class="cta solid" href="{root}#get">Get the tools</a>'
         f'<a class="cta" href="{root}#demos">Run the free demos</a>'
         f'<a class="cta" href="mailto:{SUPPORT}">Ask a question</a></p>'
     )
@@ -171,33 +110,34 @@ emit("refund.html", "Refunds — Sync Sanctuary", "How refunds work for Sync San
 <li>Files you already produced with the tool remain yours. The tools run locally; we never hold your invoices, manuscripts or question banks, so there is nothing for us to delete on your behalf.</li>
 </ul>
 <h2>Before you buy</h2>
-<p>Every tool has a <strong>free evaluation download and a live browser demo</strong> at <a href="https://rhemahq.com">rhemahq.com</a>. Run your own representative file through the evaluation first — it is the same code path as the licensed tool. If it does not fit your workflow, you have lost nothing.</p>
+<p>All three tools offer free evaluation downloads. The <a href="./#demos">browser demos</a> let you test Fulfillment Ledger and Moodle Release Pack with a sample or your own files.</p>
 <div class="note">Refund processing fees charged by the payment network are not returned to us by Polar; this does not change the amount Polar refunds you under its terms.</div>
 {cta_row()}
 """)
 
-emit("privacy.html", "Privacy — Sync Sanctuary", "What rhemahq.com and the Sync Sanctuary tools collect: local file processing, no uploads, minimal license and checkout data.", f"""
+emit("privacy.html", "Privacy — Sync Sanctuary", "What rhemahq.com and the Sync Sanctuary tools collect: local file processing, no uploads, and checkout data.", f"""
 <p class="kicker">Policies</p>
 <h1>Privacy</h1>
-<p class="lede">The short version: <strong>your files never leave your device.</strong> The tools read and write locally in your browser or on your machine. This page lists everything that does touch a network.</p>
+<p class="lede">The browser tools process files on your device. This page covers how the site, Polar checkout and service engagements handle data.</p>
 <h2>The tools</h2>
 <ul>
 <li><strong>File processing is local.</strong> Invoices, manuscripts and question banks are read in your browser (or by the local scripts) and are not uploaded to us or to Polar.</li>
-<li><strong>License validation</strong> (licensed commercial use only) sends the organization identifier, the benefit identifier and your license key to Polar's validation endpoint. It does not send file contents, filenames or row data.</li>
 <li><strong>No accounts</strong> are required on this site, and we set no advertising or tracking cookies.</li>
 </ul>
 <h2>This website</h2>
 <ul>
 <li>Static pages served by GitHub Pages. GitHub logs standard request metadata (IP, user agent) under its own privacy statement.</li>
-<li>Fonts load from Google Fonts and the demo spreadsheet library from jsDelivr; those providers receive standard request metadata.</li>
-<li>Event instrumentation on this site queues interactions locally and forwards them only to a first-party analytics endpoint if one is configured. No third-party analytics or advertising scripts are loaded by default.</li>
+<li>Fonts and the spreadsheet library are served with this site. The homepage can load its optional 3D renderer from jsDelivr, which receives standard request metadata.</li>
+<li>The homepage keeps interaction events in memory. It sends them to an analytics service only when one is configured. The site currently ships without an analytics provider or advertising scripts.</li>
 </ul>
 <h2>Checkout</h2>
 <p>Payment is handled entirely by <strong>Polar</strong> as merchant of record. Polar collects the billing and payment data needed to process the order, calculate tax and issue your receipt and invoice, under Polar's privacy policy. We receive order metadata (product, amount, status) and the contact email you provide, which we use for support and license delivery.</p>
 <h2>Support email</h2>
 <p>If you write to <a href="mailto:{SUPPORT}">{SUPPORT}</a>, we keep the correspondence to answer you and to improve the product. We do not sell or share it. Ask us to delete it at any time.</p>
+<h2>Files you send us</h2>
+<p>If you send files for a service engagement, we use them for that engagement. You can request deletion by emailing support.</p>
 <h2>Retention and rights</h2>
-<p>Order records are retained as required for tax and accounting through Polar. You may request access, correction or deletion of correspondence we hold by emailing support. Because file processing is local, there is no file content held by us to access or delete.</p>
+<p>Order records are retained as required for tax and accounting through Polar. You may request access, correction or deletion of correspondence we hold by emailing support.</p>
 <div class="note">Last updated {TODAY}. Questions: <a href="mailto:{SUPPORT}">{SUPPORT}</a>.</div>
 """)
 
@@ -230,45 +170,45 @@ emit("terms.html", "Terms — Sync Sanctuary", "Evaluation and commercial licens
 """)
 
 # ---------------------------------------------------------------- post-checkout
-emit("thanks.html", "Thank you — Sync Sanctuary", "Your Sync Sanctuary license is on its way. Next steps after checkout.", """
-<p class="kicker">Order received</p>
-<h1>Thank you — your license is on its way.</h1>
-<p class="lede">Polar has processed your payment and will email your <strong>license key</strong> and receipt to the address you entered at checkout. Delivery is usually immediate.</p>
+emit("thanks.html", "After checkout — Sync Sanctuary", "Find your Polar receipt and license and download the Sync Sanctuary tools.", f"""
+<p class="kicker">After checkout</p>
+<h1>Your receipt and license</h1>
+<p class="lede">Once payment is complete, Polar emails the receipt and license to the address you entered at checkout.</p>
 <div class="card">
-<h3>Next steps</h3>
+<h2>Find your order</h2>
 <ol>
-<li><strong>Check your email</strong> for the Polar receipt and license key (also check spam).</li>
-<li><strong>Download the tool</strong> below if you have not already, and follow its README to activate the key.</li>
-<li><strong>Manage billing</strong> — invoices with your company name and VAT ID, cancellation and payment method — through the Polar customer portal link in your receipt email.</li>
-<li><strong>Need help?</strong> Reply to the receipt email or write to <a href="mailto:support@trimprocure.com">support@trimprocure.com</a> with your order reference.</li>
+<li>Look for the receipt email from Polar. Check your spam folder if it hasn't arrived.</li>
+<li>Use the customer portal link in your receipt to manage billing, invoices or subscriptions.</li>
+<li>For help finding an order, email <a href="mailto:{SUPPORT}">{SUPPORT}</a> with your checkout reference.</li>
 </ol>
-<p class="note">Order reference: <code id="ref">not provided</code></p>
+<p class="note" id="ref-note" hidden>Checkout reference <code id="ref"></code></p>
 </div>
 <h2>Downloads</h2>
-<p>
-<a class="cta" href="./tools/ojs-galley-studio.zip">OJS Galley Studio (.zip)</a>
-<a class="cta" href="./tools/ledger/index.html">Fulfillment Ledger (open/save)</a>
-<a class="cta" href="./tools/moodle/index.html">Moodle Release Pack (open/save)</a>
+<p class="page-actions">
+<a class="cta" href="./tools/ojs-galley-studio.zip" download>OJS Galley Studio</a>
+<a class="cta" href="./tools/fulfillment-ledger.zip" download>Fulfillment Ledger</a>
+<a class="cta" href="./tools/moodle-release-pack.zip" download>Moodle Release Pack</a>
 </p>
-<p class="note">Evaluation downloads are free; the license key you receive unlocks commercial use. Files you process never leave your device.</p>
+<p class="note">Extract the ZIP and follow the included instructions. Commercial use requires a valid license.</p>
 <script>
-(function(){
-  var id = new URLSearchParams(location.search).get("checkout_id");
-  if (id) { document.getElementById("ref").textContent = id; }
-})();
+const reference = new URLSearchParams(location.search).get("checkout_id");
+if (reference) {{
+  document.getElementById("ref").textContent = reference.slice(0, 128);
+  document.getElementById("ref-note").hidden = false;
+}}
 </script>
-""")
+""", indexable=False)
 
 # ---------------------------------------------------------------- procurement
 emit("procurement.html", "Procurement one-pager — Moodle Assessment Release Pack", "Institutional purchasing information for the Moodle Assessment Release Pack: price, verification, PO and invoice path.", f"""
 <p class="kicker">For institutions · print-friendly</p>
-<h1>Moodle Assessment Release Pack</h1>
+<h1>Moodle Release Pack</h1>
 <p class="lede">A verified question-bank handoff for Moodle: merges previously exported Moodle XML banks into one import file plus a per-question receipt — category, stable id, source line and SHA-256 — so a reviewer can spot-check before importing.</p>
 <div class="card">
 <h3>At a glance</h3>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="License and compatibility details"><table>
 <tr><th>Item</th><th>Detail</th></tr>
-<tr><td>Price</td><td class="num">USD 499 / year, organization license</td></tr>
+<tr><td>Price</td><td class="num">USD 499 / year for one commercial seat</td></tr>
 <tr><td>License</td><td>One non-transferable commercial seat per key; evaluation free</td></tr>
 <tr><td>Verified Moodle versions</td><td>4.5.16 LTS, 5.2.5, 5.3.1 (native import + round-trip, teacher/student permissions)</td></tr>
 <tr><td>Question types</td><td>multichoice, truefalse, shortanswer, numerical, essay, cloze; embedded files preserved</td></tr>
@@ -359,11 +299,11 @@ GUIDES = [
 <div class="card">
 <h3>Do it with the tool</h3>
 <p>The <strong>Moodle Release Pack</strong> does the merge, the duplicate rejection and the receipt in your browser — nothing uploaded. Free evaluation; commercial use via a Polar license key. Verified by native import and round-trip on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1, including cloze subquestions, embedded files and teacher/student import permissions.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open / save the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
 </div>
 <h2>Limits</h2>
 <p>The merge preserves what you supplied; it does not author, regrade or approve questions. Import capability still depends on your role (editing teacher or above). The free WordTable plugin covers Word-table input but its published support stops at Moodle 5.0; native XML merge is a different job.</p>
-<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a> and <a href="https://docs.moodle.org/en/Moodle_XML_format">Moodle XML format</a>; version verification performed 2026-11-21 on disposable native installations. Accessed {TODAY}.</p>
+<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a> and <a href="https://docs.moodle.org/en/Moodle_XML_format">Moodle XML format</a>; version verification performed 2026-11-21 on disposable native installations. </p>
 """),
     ("moodle-import-verification.html", "Verify a Moodle question import: counts, categories, checksums",
      "A repeatable spot-check procedure for Moodle question-bank imports: per-category counts, duplicate ids, cloze subquestions, embedded files and a SHA-256 receipt.",
@@ -392,11 +332,11 @@ GUIDES = [
 <div class="card">
 <h3>Do it with the tool</h3>
 <p>The <strong>Moodle Release Pack</strong> emits the merged import file and this receipt together, rejects duplicate <code>(category, id)</code> pairs, and preserves embedded files. The identical contract was verified natively on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1: seven questions, six types, category split, cloze fields, four embedded attachments, teacher import and student denial.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open / save the tool</a></p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open the tool</a></p>
 </div>
 <h2>Limits</h2>
 <p>Verification proves the bytes and settings you supplied survived. It does not prove the questions are pedagogically sound, correctly keyed, or approved for release — those remain the institution's decisions.</p>
-<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a>, <a href="https://docs.moodle.org/en/Export_questions">Export questions</a>; native contract checks 2026-11-21. Accessed {TODAY}.</p>
+<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a>, <a href="https://docs.moodle.org/en/Export_questions">Export questions</a>; native contract checks 2026-11-21. </p>
 """),
     ("fulfyld-bdr-reconciliation.html", "Reconcile Fulfyld Billing Detail Reports (BDR) in a workbook",
      "The Fulfyld BDR CSV export, field by field, and how to tie every billed row back to its original file, worksheet and line in one reconciliation workbook.",
@@ -405,9 +345,9 @@ GUIDES = [
 <h1>Reconcile Fulfyld Billing Detail Reports without losing the source row</h1>
 <p class="lede">Fulfyld publishes an itemized <strong>Billing Detail Report (BDR)</strong> per invoice. It is the right input for a tie-out — but only if every billed row keeps its original address, so a disputed line can be re-opened in the exact file it came from.</p>
 <h2>Getting the export</h2>
-<p>Fulfyld's billing guide describes itemized fee exports and provides a <strong>CSV attachment per invoice</strong> (delivered via Invoiced). The published example includes a service-type filter (<code>Charge_Category__c</code> in their example), so confirm the exact fee-label column in your own export before automating anything.</p>
+<p>Download the <strong>CSV attached to an Invoiced invoice</strong> or export the detailed Excel report from the Billing section of the Fulfyld dashboard. Check the header names in your own file before mapping the fee fields.</p>
 <h2>Fields that matter for a tie-out</h2>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="Fields to review"><table>
 <tr><th>Field</th><th>Use in reconciliation</th></tr>
 <tr><td>Date</td><td>Month bucket (normalize Excel serials to ISO dates first)</td></tr>
 <tr><td>Order number</td><td>Join key back to your order system</td></tr>
@@ -429,10 +369,10 @@ GUIDES = [
 <p>A consolidation and evidence workbook is <strong>not</strong> an error detector and not a ledger posting. It does not decide that a charge is wrong; it makes every charge re-openable. Published "3–15% billing leakage" figures in this market are vendor-reported — WareAudit's own site notes no independent study exists — so treat any error-rate claim, including ours if we ever made one, as marketing until measured on your own bills.</p>
 <div class="card">
 <h3>Do it with the tool</h3>
-<p>The <strong>Fulfillment Ledger</strong> reads any 3PL's CSV/XLSX exports (Fulfyld BDR included), builds both sheets in your browser, and never uploads a file. No API token, no Shopify install. Free evaluation; commercial use via a Polar license key at $49/month.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open / save the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
+<p>The <strong>Fulfillment Ledger</strong> reads CSV or Excel with headers <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. It also accepts <code>quantity</code> and <code>unit</code>. For a Fulfyld export, map service type to <code>label</code> and total amount to <code>total</code> in a working copy. Fill provider and currency from the invoice and retain the original row order. The workbook records the rows and checksum of the file you select.</p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
 </div>
-<p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. Accessed {TODAY}.</p>
+<p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. </p>
 """),
     ("ojs-35-galley-production.html", "OJS 3.5 galley production: Word to PDF, HTML and JATS",
      "End-to-end galley production on OJS 3.5: the native add-galley workflow, JATS Publishing 1.2 DTD validation, and where a local pipeline fits.",
@@ -460,7 +400,7 @@ GUIDES = [
 <div class="card">
 <h3>Verified, not asserted</h3>
 <p>This pipeline was executed end-to-end on a disposable <strong>OJS 3.5.0.4</strong> installation: a generated DOCX produced PDF, HTML and JATS; the JATS passed the official Publishing 1.2 MathML2 DTD; all three galleys registered natively on one draft with the PNG associated as a dependent file; MIME types matched and all four files matched their original SHA-256 in OJS private storage.</p>
-<p><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the evaluation zip</a><a class="cta" href="../#get">License and pricing</a></p>
+<p class="page-actions"><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the evaluation zip</a><a class="cta" href="../#get">License and pricing</a></p>
 </div>
 <h2>Honest limits</h2>
 <ul>
@@ -471,7 +411,7 @@ GUIDES = [
 </ul>
 <h2>When a subscription beats per-article</h2>
 <p>Per-article services run $5–$49/article in the current market. A $59/month local pipeline breaks even against a $25/article service at roughly 3 articles/month, and against $25/article at ~29 articles/year if you only need XML — the three-format bundle plus local, editable source is what changes the math for a journal producing ~40 articles/year.</p>
-<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>; <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>; <a href="https://forum.pkp.sfu.ca/t/info-on-tech-stack-behind-new-article-production-in-ojs-3-5-3-6/97196">PKP forum thread 97196</a> (staff statements, Oct 2025); <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a> (3.5.0-6, Nov 2026). Accessed {TODAY}.</p>
+<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>; <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>; <a href="https://forum.pkp.sfu.ca/t/info-on-tech-stack-behind-new-article-production-in-ojs-3-5-3-6/97196">PKP forum thread 97196</a> (staff statements, Oct 2025); <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a> (3.5.0-6, Nov 2026). </p>
 """),
     ("3pl-reconciliation-comparison.html", "3PL billing reconciliation options compared (2026)",
      "An honest comparison of Cartwright Labs ShipBob Billing Reconciler, WareAudit, SKU.io and the Fulfillment Ledger workbook: price, inputs, hosting, evidence.",
@@ -479,12 +419,12 @@ GUIDES = [
 <p class="kicker">Guide · 3PL finance ops</p>
 <h1>3PL billing reconciliation: four options, honestly compared</h1>
 <p class="lede">Prices and scopes below were read from vendor pages on 2026-11-22. They change; check before you buy. We sell one of these options, so read the "what it does not do" column first.</p>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="3PL tool comparison"><table>
 <tr><th>Option</th><th>Price (as read)</th><th>Inputs</th><th>Hosting</th><th>Evidence per finding</th></tr>
 <tr><td><strong>Cartwright Labs — ShipBob Billing Reconciler</strong></td><td class="num">$49/mo from run 3; first two runs free; billed via Shopify</td><td>Shopify orders/fulfillments/refunds ↔ ShipBob shipments/billing, via API install + token</td><td>Hosted app</td><td>Findings list, 8 checks over 7/14/30-day windows; sample PDF</td></tr>
 <tr><td><strong>WareAudit</strong></td><td class="num">$149/mo Starter (≤3,000 orders); $299 one-off (3 months of bills); ~10% annual discount</td><td>Any-3PL CSV upload</td><td>Hosted</td><td>Findings reports; evidence column labeled provider Line ID</td></tr>
 <tr><td><strong>SKU.io</strong></td><td class="num">from $1,000/mo</td><td>Synced ShipBob bills (account connection)</td><td>Hosted</td><td>Groups by original fee name, count, total; export omits original file/worksheet/row</td></tr>
-<tr><td><strong>Fulfillment Ledger (ours)</strong></td><td class="num">$49/mo</td><td>Any 3PL CSV/XLSX you already hold</td><td><strong>Local browser; nothing uploaded</strong></td><td>Per-row original file, worksheet/line, SHA-256 of source; rollup + source-reference sheets</td></tr>
+<tr><td><strong>Fulfillment Ledger (ours)</strong></td><td class="num">$49/mo</td><td>CSV or Excel with the tool's expected headers</td><td><strong>Local browser; nothing uploaded</strong></td><td>Per-row original file, worksheet/line, SHA-256 of source; rollup + source-reference sheets</td></tr>
 </table></div>
 <h2>How to choose</h2>
 <ul>
@@ -500,9 +440,9 @@ GUIDES = [
 <div class="card">
 <h3>Try before you buy</h3>
 <p>Free evaluation download and a live browser demo with a synthetic sample — run your own export through it, nothing uploaded.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open / save the tool</a><a class="cta" href="./fulfyld-bdr-reconciliation.html">Fulfyld BDR guide</a></p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open the tool</a><a class="cta" href="./fulfyld-bdr-reconciliation.html">Fulfyld BDR guide</a></p>
 </div>
-<p class="note">Sources opened 2026-11-22: <a href="https://www.cartwrightlabs.com/shipbob-billing-audit/">cartwrightlabs.com</a>, <a href="https://wareaudit.com/">wareaudit.com</a>, <a href="https://www.sku.io/pricing/">sku.io/pricing</a>. Cartwright was in private pilot at reading time. Accessed {TODAY}.</p>
+<p class="note">Sources opened 2026-11-22: <a href="https://www.cartwrightlabs.com/shipbob-billing-audit/">cartwrightlabs.com</a>, <a href="https://wareaudit.com/">wareaudit.com</a>, <a href="https://www.sku.io/pricing/">sku.io/pricing</a>. Cartwright was in private pilot at reading time. </p>
 """),
 ]
 
@@ -513,7 +453,7 @@ emit("guides/index.html", "Guides — Sync Sanctuary",
      "Practical, source-cited guides for Moodle question-bank handoffs, OJS galley production and 3PL invoice reconciliation.", """
 <p class="kicker">Guides</p>
 <h1>Guides for the <em>handoff</em>.</h1>
-<p class="lede">Practical procedures for the three jobs our tools serve — written to be useful even if you never buy anything. Each cites its sources and states its limits.</p>
+<p class="lede">Step-by-step guides to journal galleys, invoice reconciliation, and Moodle question-bank releases.</p>
 <ul class="guide-list">
 <li><a href="./moodle-merge-multiple-xml.html">Import multiple XML files into a Moodle question bank</a><p>Categories, duplicate ids, embedded files, and the merged-file path with a receipt.</p></li>
 <li><a href="./moodle-import-verification.html">Verify a Moodle question import, line by line</a><p>Per-category counts, cloze subquestions, embedded-file hashes, permission checks.</p></li>
@@ -524,18 +464,14 @@ emit("guides/index.html", "Guides — Sync Sanctuary",
 """ + cta_row("../"))
 
 # ---------------------------------------------------------------- sitemap / robots
-pages = ["index.html"] + EMITTED
-urls = "\n".join(
-    f"  <url><loc>{BASE}/{p}</loc><lastmod>{TODAY}</lastmod></url>" for p in pages
-)
+product_pages = [json.loads(offer.read_text(encoding="utf-8"))["slug"] + "/"
+                 for offer in sorted((SITE / "src/domain").glob("*/offer.json"))]
+pages = ["", *product_pages, *(canonical for _, canonical, indexable in EMITTED if indexable)]
+urls = "\n".join(f"  <url><loc>{BASE}/{path}</loc></url>" for path in pages)
 (SITE / "sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + urls + "\n</urlset>\n", encoding="utf-8")
+    + urls + "\n</urlset>\n", encoding="utf-8", newline="\n")
 (SITE / "robots.txt").write_text(
-    f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n", encoding="utf-8")
-(SITE / "assets").mkdir(parents=True, exist_ok=True)
-(SITE / "assets" / "page.css").write_text(CSS, encoding="utf-8")
+    f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n", encoding="utf-8", newline="\n")
 
-print("emitted:", len(EMITTED), "pages + assets/page.css + sitemap.xml + robots.txt")
-for p in EMITTED:
-    print(" ", p)
+print(f"Emitted {len(EMITTED)} pages, sitemap.xml and robots.txt")

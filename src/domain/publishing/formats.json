@@ -1,0 +1,23 @@
+[
+  {
+    "id": "pdf",
+    "label": "PDF",
+    "title": "Print galley",
+    "description": "A two-column layout for reading and proofing.",
+    "file": "production-note.pdf"
+  },
+  {
+    "id": "html",
+    "label": "HTML",
+    "title": "Web galley",
+    "description": "Standalone HTML for reading in a browser.",
+    "file": "production-note.html"
+  },
+  {
+    "id": "xml",
+    "label": "JATS XML",
+    "title": "Structured galley",
+    "description": "Article metadata and body in JATS Publishing 1.2.",
+    "file": "production-note.xml"
+  }
+]

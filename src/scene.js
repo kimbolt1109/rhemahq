@@ -1,192 +1,269 @@
-// Sync Sanctuary — interactive WebGL centerpiece.
-// A verified "seal" orbited by source-shards joined by provenance threads;
-// scroll drives the camera, pointer adds parallax, hover raycasts a live receipt.
 import * as THREE from "three";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
-const canvas = document.getElementById("gl");
-const tip = document.getElementById("gl-tip");
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const coarse = matchMedia("(pointer: coarse)").matches;
-const small = Math.min(innerWidth, innerHeight) < 700;
-
-const RECEIPTS = [
-  "row 128 · Pick & Pack · 46.20", "row 129 · Pick & Pack · 18.70", "row 130 · Storage · 120.00",
-  "row 008 · Returns · 12.50", "row 009 · Credit · -6.00", "q-101 · multichoice · verified",
-  "q-102 · truefalse · verified", "q-201 · cloze · verified", "galley · JATS 1.2 · DTD clean",
-  "galley · PDF · two-column", "galley · HTML · standalone", "sha256 · tied to source",
+const SHEET_WIDTH = 2.82;
+const SHEET_HEIGHT = 3.67;
+const ROLES = ["source", "reference", "output"];
+// Each stage places the three sheets nearer to or farther from the camera as focus moves through the trace.
+const STAGES = [
+  [[-.84, .06, .19, 1.09, .19, -.18], [.04, -.18, -.49, .79, -.27, .12], [.94, -.24, -.69, .75, -.31, .15]],
+  [[-.98, -.22, -.48, .81, .32, -.23], [0, .19, .28, 1.13, -.08, -.06], [.96, -.2, -.52, .82, -.28, .17]],
+  [[-.91, -.16, -.67, .77, .3, -.22], [-.06, -.17, -.35, .87, .14, -.055], [.88, .11, .32, 1.14, -.2, .14]],
 ];
 
-let renderer;
-try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: !small, alpha: true, powerPreference: "high-performance" });
-} catch (err) {
-  canvas.remove();
-  document.body.classList.add("no-gl");
-  throw err;
+function makePaperGeometry() {
+  const geometry = new THREE.PlaneGeometry(SHEET_WIDTH, SHEET_HEIGHT, 28, 36);
+  const points = geometry.getAttribute("position");
+  for (let i = 0; i < points.count; i++) {
+    const x = points.getX(i) / (SHEET_WIDTH * .5);
+    const y = points.getY(i) / (SHEET_HEIGHT * .5);
+    points.setZ(i, .09 * x ** 2 - .07 * y ** 2 + .035 * x * y);
+  }
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
-renderer.setClearColor(0x000000, 0);
-renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 2));
-renderer.setSize(innerWidth, innerHeight);
+function drawPaper(canvas, preview, role) {
+  const ctx = canvas.getContext("2d");
+  const { width, height } = canvas;
+  const isOutput = role === "output";
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(2, 2, width - 4, height - 4, 5);
+  ctx.clip();
 
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x060709, 0.045);
-const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
-camera.position.set(0, 0, 9);
+  ctx.fillStyle = isOutput ? preview.paper : role === "source" ? "#dce3d9" : "#d3e0d4";
+  ctx.fillRect(0, 0, width, height);
+  const shade = ctx.createLinearGradient(0, 0, width * .5, height);
+  shade.addColorStop(0, "#f9fdf299");
+  shade.addColorStop(.6, "#f9fdf200");
+  shade.addColorStop(1, "#384e3c2b");
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, 0, width, height);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.25));
-const key = new THREE.DirectionalLight(0xE6E1D3, 0.9); key.position.set(4, 6, 6); scene.add(key);
-const core = new THREE.PointLight(0x00E38C, 12, 20); core.position.set(0, 0, 0); scene.add(core);
+  let grain = 11872;
+  for (let i = 0; i < 2100; i++) {
+    grain = (Math.imul(1664525, grain) + 1013904223) >>> 0;
+    const x = grain % width;
+    grain = (Math.imul(1664525, grain) + 1013904223) >>> 0;
+    ctx.fillStyle = i % 2 ? "#425b481e" : "#fbfff669";
+    ctx.fillRect(x, grain % height, 1.5, 2);
+  }
 
-// The verified seal
-const seal = new THREE.Group();
-const sealBody = new THREE.Mesh(
-  new THREE.IcosahedronGeometry(1.15, 0),
-  new THREE.MeshStandardMaterial({ color: 0x0b0e10, metalness: 0.9, roughness: 0.28, emissive: 0x00E38C, emissiveIntensity: 0.12 })
-);
-const sealEdges = new THREE.LineSegments(
-  new THREE.EdgesGeometry(sealBody.geometry),
-  new THREE.LineBasicMaterial({ color: 0x00E38C, transparent: true, opacity: 0.85 })
-);
-const ring = new THREE.Mesh(
-  new THREE.TorusGeometry(1.75, 0.012, 8, 96),
-  new THREE.MeshBasicMaterial({ color: 0xE6E1D3, transparent: true, opacity: 0.5 })
-);
-ring.rotation.x = Math.PI / 2.4;
-seal.add(sealBody, sealEdges, ring);
-scene.add(seal);
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = "#48665560";
+  ctx.strokeRect(25, 25, width - 50, height - 50);
+  ctx.textAlign = "left";
 
-// Orbiting source-shards (instanced)
-const SHARDS = small ? 26 : 48;
-const shardGeo = new THREE.BoxGeometry(0.4, 0.56, 0.02);
-const shardMat = new THREE.MeshStandardMaterial({ color: 0xC9C4B4, metalness: 0.35, roughness: 0.62, emissive: 0x000000 });
-const shards = new THREE.InstancedMesh(shardGeo, shardMat, SHARDS);
-const base = [];
-const dummy = new THREE.Object3D();
-for (let i = 0; i < SHARDS; i++) {
-  const a = (i / SHARDS) * Math.PI * 2 * 3;           // three helix turns
-  const r = 3.6 + (i % 7) * 0.3;
-  const y = ((i / SHARDS) - 0.5) * 5.2;
-  base.push({ a, r, y, spin: 0.2 + (i % 5) * 0.07 });
-  dummy.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
-  dummy.lookAt(0, y * 0.3, 0);
-  dummy.updateMatrix();
-  shards.setMatrixAt(i, dummy.matrix);
-  shards.setColorAt(i, new THREE.Color(0xE6E1D3));
+  const start = 67;
+  const end = width - start;
+  const rule = (y, color = "#738b785c") => {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(start, y);
+    ctx.lineTo(end, y);
+    ctx.stroke();
+  };
+  const text = (content, size, y, color, style = "monospace") => {
+    ctx.fillStyle = color;
+    ctx.font = size + "px " + style;
+    ctx.fillText(content, start, y, end - start);
+  };
+  const ink = "#26392e";
+  const serif = '"Newsreader", Georgia, serif';
+
+  if (isOutput) {
+    text(preview.type.toUpperCase(), 25, 125, preview.accent);
+    text(preview.title, 86, 225, ink, serif);
+    rule(264, preview.accent);
+    preview.rows.forEach(([label, value], i) => {
+      const rowY = 338 + i * 78;
+      text(label, 29, rowY, ink);
+      ctx.textAlign = "right";
+      ctx.fillText(value, end, rowY);
+      ctx.textAlign = "left";
+      rule(rowY + 24);
+    });
+    ctx.fillStyle = preview.accent;
+    ctx.fillRect(start, 608, end - start, 82);
+    ctx.fillStyle = "#eff5e9";
+    ctx.font = "24px monospace";
+    ctx.fillText("SOURCE REFERENCE", start + 22, 658);
+    text(preview.source, 28, 756, ink);
+    text(preview.reference, 23, 803, preview.accent);
+    rule(875);
+  } else {
+    const source = role === "source";
+    text(source ? "ORIGINAL FILE" : "SOURCE REFERENCE", 25, 125, ink);
+    text(source ? preview.source : preview.reference, 59, 218, ink, serif);
+    rule(260, preview.accent);
+    text(source ? preview.type : preview.title, 29, 330, preview.accent);
+    ctx.fillStyle = "#f4f8f091";
+    ctx.fillRect(start, 394, end - start, 152);
+    text(preview.label, 33, 452, ink);
+    text(preview.value, 37, 505, preview.accent);
+    for (let y = 602; y < 860; y += 60) rule(y);
+  }
+  ctx.restore();
 }
-scene.add(shards);
 
-// Provenance threads: shard -> seal
-const threadPos = new Float32Array(SHARDS * 6);
-for (let i = 0; i < SHARDS; i++) {
-  const b = base[i];
-  threadPos.set([Math.cos(b.a) * b.r, b.y, Math.sin(b.a) * b.r, 0, 0, 0], i * 6);
-}
-const threadGeo = new THREE.BufferGeometry();
-threadGeo.setAttribute("position", new THREE.BufferAttribute(threadPos, 3));
-const threads = new THREE.LineSegments(threadGeo, new THREE.LineBasicMaterial({ color: 0x00E38C, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false }));
-scene.add(threads);
+export function mountScene(container, firstPreview) {
+  const canvas = container.querySelector("canvas");
+  const context = canvas.getContext("webgl2", { alpha: true, antialias: true });
+  if (!context) return null;
 
-// Drifting particles
-const P = small ? 160 : 620;
-const pPos = new Float32Array(P * 3);
-for (let i = 0; i < P; i++) {
-  pPos[i * 3] = (Math.random() - 0.5) * 22;
-  pPos[i * 3 + 1] = (Math.random() - 0.5) * 14;
-  pPos[i * 3 + 2] = (Math.random() - 0.5) * 16;
-}
-const pGeo = new THREE.BufferGeometry();
-pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xE6E1D3, size: 0.025, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
-scene.add(particles);
+  const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.65));
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, .1, 40);
+  camera.position.z = 8.8;
+  scene.add(new THREE.HemisphereLight(0xf5faef, 0x8ea598, 1.65));
+  const key = new THREE.DirectionalLight(0xf6fbf1, 2.2);
+  key.position.set(-4, 6, 5);
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffffff, .5);
+  fill.position.set(4, -1, 5);
+  scene.add(fill);
 
-// Post-processing (bloom) — skipped on small / coarse devices
-let composer = null;
-if (!small && !coarse) {
-  composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.7, 0.35));
-  composer.addPass(new OutputPass());
-}
+  const folio = new THREE.Group();
+  scene.add(folio);
+  const paperGeometry = makePaperGeometry();
+  const pages = ROLES.map((role, index) => {
+    const art = document.createElement("canvas");
+    art.width = 768;
+    art.height = 1000;
+    const texture = new THREE.CanvasTexture(art);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    const paper = new THREE.Mesh(paperGeometry, new THREE.MeshStandardMaterial({
+      map: texture, roughness: .88, alphaTest: .48, alphaToCoverage: true, side: THREE.DoubleSide,
+    }));
+    paper.position.set((index - 1) * .7, -.48 + .15 * index, -.95 + index * .22);
+    paper.rotation.set(.24, -.34 + index * .3, -.25 + index * .21);
+    paper.scale.setScalar(.78);
+    folio.add(paper);
+    return { role, paper, art, texture };
+  });
 
-// Interaction state
-const pointer = new THREE.Vector2(0, 0);
-const target = new THREE.Vector2(0, 0);
-const ray = new THREE.Raycaster();
-let hovered = -1;
-let scrollP = 0;
+  const packet = new THREE.Mesh(
+    new THREE.SphereGeometry(.07, 14, 8),
+    new THREE.MeshBasicMaterial({ color: "#d6edc8" }),
+  );
+  packet.position.z = -.9;
+  scene.add(packet);
 
-addEventListener("pointermove", (e) => {
-  target.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-  if (tip) {
-    ray.setFromCamera(target, camera);
-    const hit = ray.intersectObject(shards)[0];
-    const id = hit ? hit.instanceId : -1;
-    if (id !== hovered) {
-      if (hovered >= 0) shards.setColorAt(hovered, new THREE.Color(0xE6E1D3));
-      hovered = id;
-      if (id >= 0) {
-        shards.setColorAt(id, new THREE.Color(0x00E38C));
-        tip.textContent = RECEIPTS[id % RECEIPTS.length] + "  ✓";
-        tip.classList.add("on");
-      } else tip.classList.remove("on");
-      shards.instanceColor.needsUpdate = true;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const viewTarget = new THREE.Vector2();
+  let visible = true;
+  let contextLost = false;
+  let frame = 0;
+  let previous = null;
+  let stage = 0;
+  let progress = 0;
+  let spacing = 4.15;
+  let turn = 0;
+
+  function draw(time) {
+    frame = 0;
+    if (contextLost) return;
+    const elapsed = previous === null ? 16.7 : Math.min(50, time - previous);
+    previous = time;
+    const still = reduce.matches;
+    const blend = still ? 1 : 1 - Math.exp(-elapsed * .0064);
+    turn *= still ? 0 : Math.pow(.9, elapsed / 16.7);
+    let movement = 0;
+    const approach = (from, to) => {
+      movement = Math.max(movement, Math.abs(to - from));
+      return THREE.MathUtils.lerp(from, to, blend);
+    };
+
+    folio.rotation.set(
+      approach(folio.rotation.x, -.035 + viewTarget.x),
+      approach(folio.rotation.y, viewTarget.y + turn),
+      approach(folio.rotation.z, -.035 + viewTarget.y * .105),
+    );
+    camera.position.z = approach(camera.position.z, 8.8 + Math.abs(viewTarget.y) * 1.05 + Math.abs(viewTarget.x) * .55);
+    for (const [i, { paper }] of pages.entries()) {
+      const [x, y, z, scale, yaw, roll] = STAGES[stage][i];
+      paper.position.set(approach(paper.position.x, x * spacing), approach(paper.position.y, y), approach(paper.position.z, z));
+      paper.rotation.set(approach(paper.rotation.x, .11 + (i === stage ? -.11 : .12)), approach(paper.rotation.y, yaw), approach(paper.rotation.z, roll));
+      paper.scale.setScalar(approach(paper.scale.x, scale));
     }
-    if (id >= 0) { tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY + 12 + "px"; }
+    packet.visible = progress > .005 && progress < .996;
+    packet.position.x = THREE.MathUtils.lerp(-spacing * 1.2, spacing * 1.2, progress);
+    packet.position.y = -1.57 + Math.sin(progress * Math.PI) * .26;
+    packet.scale.setScalar(1.06 + .34 * Math.sin(progress * Math.PI * 8));
+    renderer.render(scene, camera);
+    container.classList.add("is-rendered");
+
+    if (movement > .003 && !still && visible && !document.hidden) frame = requestAnimationFrame(draw);
+    if (!frame) previous = null;
   }
-}, { passive: true });
 
-addEventListener("scroll", () => {
-  const max = document.documentElement.scrollHeight - innerHeight;
-  scrollP = max > 0 ? scrollY / max : 0;
-  canvas.style.opacity = String(Math.max(0, 1 - scrollP * 3.2));
-}, { passive: true });
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-  if (composer) composer.setSize(innerWidth, innerHeight);
-});
-
-const clock = new THREE.Clock();
-function frame() {
-  const t = clock.getElapsedTime();
-  pointer.lerp(target, 0.06);
-
-  seal.rotation.y = t * 0.16 + scrollP * 2.4;
-  seal.rotation.x = Math.sin(t * 0.2) * 0.12;
-  ring.rotation.z = t * 0.3;
-  const pulse = 1 + Math.sin(t * 1.2) * 0.03;
-  seal.scale.setScalar(pulse);
-  core.intensity = 10 + Math.sin(t * 1.6) * 3;
-
-  for (let i = 0; i < SHARDS; i++) {
-    const b = base[i];
-    const a = b.a + t * 0.05;
-    const y = b.y + Math.sin(t * b.spin + i) * 0.16;
-    dummy.position.set(Math.cos(a) * b.r, y, Math.sin(a) * b.r);
-    dummy.lookAt(0, y * 0.3, 0);
-    dummy.updateMatrix();
-    shards.setMatrixAt(i, dummy.matrix);
+  function sync() {
+    if (visible && !document.hidden && !contextLost) {
+      if (!frame) frame = requestAnimationFrame(draw);
+    } else if (frame) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      previous = null;
+    }
   }
-  shards.instanceMatrix.needsUpdate = true;
-  particles.rotation.y = t * 0.012;
 
-  camera.position.z = 9 - scrollP * 4.5;
-  camera.position.x = pointer.x * 0.7;
-  camera.position.y = pointer.y * 0.45 + scrollP * 1.2;
-  camera.lookAt(0, scrollP * 0.6, 0);
+  function fit() {
+    const { clientWidth: width, clientHeight: height } = container;
+    if (!width || !height) return;
+    camera.aspect = width / height;
+    spacing = Math.min(4.2, Math.max(1.6, (camera.aspect * 2.69 - 1.5) * .72));
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+    sync();
+  }
 
-  if (composer) composer.render(); else renderer.render(scene, camera);
-}
+  function show(preview) {
+    for (const { art, texture, role } of pages) {
+      drawPaper(art, preview, role);
+      texture.needsUpdate = true;
+    }
+    turn = -.2;
+    sync();
+  }
 
-if (reduce) {
-  frame();  // single static frame, no loop
-} else {
-  renderer.setAnimationLoop(() => { if (!document.hidden) frame(); });
+  function setStep(index) {
+    stage = index;
+    sync();
+  }
+
+  function setTilt(x, y) {
+    viewTarget.set(x, y);
+    sync();
+  }
+
+  function setProgress(value) {
+    progress = value;
+    sync();
+  }
+
+  canvas.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    contextLost = true;
+    container.classList.remove("is-rendered");
+    sync();
+  });
+  canvas.addEventListener("webglcontextrestored", () => {
+    contextLost = false;
+    sync();
+  });
+  new ResizeObserver(fit).observe(container);
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    sync();
+  }).observe(container);
+  document.addEventListener("visibilitychange", sync);
+  reduce.addEventListener("change", sync);
+
+  show(firstPreview);
+  fit();
+  return { show, setStep, setTilt, setProgress };
 }

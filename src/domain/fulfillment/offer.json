@@ -1,0 +1,10 @@
+{
+  "slug": "fulfillment-ledger",
+  "name": "Fulfillment Ledger",
+  "sku": "n27",
+  "price": "$49",
+  "period": "month",
+  "archive": "fulfillment-ledger.zip",
+  "download_label": "Download offline",
+  "checkout": "https://buy.polar.sh/polar_cl_IVdlZd6WU4wcJhtc6DyBFYXBdMOFMejVklGoy254e9F?utm_source=rhemahq&utm_medium=site&utm_campaign=n27_ledger"
+}

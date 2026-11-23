@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20190208//EN" "JATS-publishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
+<front>
+<journal-meta>
+<journal-id/>
+<journal-title-group>
+<journal-title>Rhema Production Notes</journal-title>
+</journal-title-group>
+<issn/>
+<publisher>
+<publisher-name/>
+</publisher>
+</journal-meta>
+<article-meta>
+<title-group>
+<article-title>A repeatable editorial handoff</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author">
+<name>
+<surname>Editor</surname>
+<given-names>Sample</given-names>
+</name>
+</contrib>
+</contrib-group>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2026-11-23">
+<day>23</day>
+<month>11</month>
+<year>2026</year>
+</pub-date>
+<volume>1</volume><issue>1</issue><permissions>
+</permissions>
+<abstract><p>A synthetic production note for comparing the print, web, and structured outputs from one accepted manuscript.</p></abstract>
+</article-meta>
+</front>
+<body>
+<sec id="introduction">
+  <title>Introduction</title>
+  <p>An editorial handoff is easier to review when the production files share the same accepted text. This demonstration follows one synthetic manuscript through print, web, and structured XML.</p>
+</sec>
+<sec id="methods">
+  <title>Methods</title>
+  <p>We prepared a short accepted manuscript with section headings and a metadata record. The same source was used to generate an HTML galley, a two-column PDF, and JATS Publishing XML. We checked the article title and compared the section order across the three outputs.</p>
+</sec>
+<sec id="results">
+  <title>Results</title>
+  <p>The print galley presents a two-column layout. The HTML version preserves headings for reading on the web. The XML records the journal and article metadata in structured elements and separates the front matter from the body.</p>
+</sec>
+<sec id="conclusion">
+  <title>Conclusion</title>
+  <p>A repeatable conversion step gives a production editor a consistent starting point for proofreading and registering each galley in OJS.</p>
+</sec>
+</body>
+<back>
+</back>
+</article>

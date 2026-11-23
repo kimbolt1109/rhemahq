@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+# Keep checksummed galley samples byte-for-byte.
+src/features/publishing/sample/production-note.* -text
+src/features/publishing/sample/production-note.html whitespace=cr-at-eol

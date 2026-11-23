@@ -10,27 +10,26 @@
 <meta property="og:description" content="How to import multiple Moodle XML question banks into one bank — categories, duplicate ids, embedded files, and a verification receipt.">
 <meta property="og:url" content="https://rhemahq.com/guides/moodle-merge-multiple-xml.html">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23214337'/><path d='M9,17l5,5l9,-11' stroke='%23DDE9CF' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/page.css">
 
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="../">sync<span>sanctuary</span></a>
-    <nav aria-label="Primary">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav class="main-nav" aria-label="Primary">
       <a href="../#tools">Tools</a>
       <a href="../#demos">Demos</a>
       <a href="../guides/">Guides</a>
-      <a href="../#get">Get the tools</a>
     </nav>
+    <a class="button header-action" href="../#get">Get the tools <span aria-hidden="true">↗</span></a>
   </div>
 </header>
-<main class="wrap">
-
+<main class="container page-content" id="main">
+<nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">← All guides</a></nav>
 <p class="kicker">Guide · Moodle</p>
 <h1>Import multiple XML files into a Moodle question bank</h1>
 <p class="lede">Moodle's import screen takes <strong>one file at a time</strong>. When a course arrives as several exported banks — per topic, per author, per legacy course — the naive loop loses categories, collides ids and silently drops embedded files. Here is the reliable path, and how to prove the result.</p>
@@ -62,17 +61,19 @@
 <div class="card">
 <h3>Do it with the tool</h3>
 <p>The <strong>Moodle Release Pack</strong> does the merge, the duplicate rejection and the receipt in your browser — nothing uploaded. Free evaluation; commercial use via a Polar license key. Verified by native import and round-trip on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1, including cloze subquestions, embedded files and teacher/student import permissions.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open / save the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
 </div>
 <h2>Limits</h2>
 <p>The merge preserves what you supplied; it does not author, regrade or approve questions. Import capability still depends on your role (editing teacher or above). The free WordTable plugin covers Word-table input but its published support stops at Moodle 5.0; native XML merge is a different job.</p>
-<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a> and <a href="https://docs.moodle.org/en/Moodle_XML_format">Moodle XML format</a>; version verification performed 2026-11-21 on disposable native installations. Accessed {TODAY}.</p>
-
+<p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a> and <a href="https://docs.moodle.org/en/Moodle_XML_format">Moodle XML format</a>; version verification performed 2026-11-21 on disposable native installations. </p>
 </main>
-<footer>
-  <div class="wrap">
-    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
-    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav aria-label="Footer">
+      <a href="../guides/">Guides</a><a href="../refund.html">Refunds</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </nav>
+    <p>© 2026 Sync Sanctuary</p>
   </div>
 </footer>
 </body>

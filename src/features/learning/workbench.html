@@ -1,0 +1,32 @@
+  <article class="workbench" data-workbench="moodle" data-append data-product="n31">
+    <header class="bench-head">
+      <div><h2>Question-bank release</h2><p>Moodle XML inputs · files stay on this device</p></div>
+      <button class="button small" type="button" data-clear>Clear</button>
+    </header>
+    <div class="bench-body">
+      <div class="bench-input">
+        <h4>Input files</h4>
+        <div class="bench-actions">
+          <button class="button" type="button" data-sample>Load sample</button>
+          <label class="button file-control">Add XML banks<input data-files type="file" multiple accept=".xml,text/xml"></label>
+          <button class="button primary" type="button" data-build disabled>Build release</button>
+        </div>
+        <p class="bench-hint">The release preserves category paths and embedded files. Each question needs a unique ID in its category.</p>
+        <p class="bench-status" data-status role="status"></p>
+      </div>
+      <div class="bench-output">
+        <div class="output-head">
+          <h4>Release preview</h4>
+          <div class="bench-actions">
+            <button class="button small" type="button" data-download disabled>Import XML <span aria-hidden="true">↓</span></button>
+            <button class="button small" type="button" data-export-receipt disabled>Receipt CSV <span aria-hidden="true">↓</span></button>
+          </div>
+        </div>
+        <p class="bench-empty" data-empty>Category counts and the question receipt will appear here.</p>
+        <div class="bench-results" data-results hidden>
+          <div id="counts" data-summary></div>
+          <div id="receiptTable" data-receipt-table></div>
+        </div>
+      </div>
+    </div>
+  </article>

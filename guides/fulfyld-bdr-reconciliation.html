@@ -10,34 +10,33 @@
 <meta property="og:description" content="Fulfyld Billing Detail Report (BDR) CSV fields, download path, and a source-row reconciliation workflow for 3PL finance ops.">
 <meta property="og:url" content="https://rhemahq.com/guides/fulfyld-bdr-reconciliation.html">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23060709'/><path d='M9,17l5,5l9,-11' stroke='%2300E38C' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23214337'/><path d='M9,17l5,5l9,-11' stroke='%23DDE9CF' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/page.css">
 
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="../">sync<span>sanctuary</span></a>
-    <nav aria-label="Primary">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav class="main-nav" aria-label="Primary">
       <a href="../#tools">Tools</a>
       <a href="../#demos">Demos</a>
       <a href="../guides/">Guides</a>
-      <a href="../#get">Get the tools</a>
     </nav>
+    <a class="button header-action" href="../#get">Get the tools <span aria-hidden="true">↗</span></a>
   </div>
 </header>
-<main class="wrap">
-
+<main class="container page-content" id="main">
+<nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">← All guides</a></nav>
 <p class="kicker">Guide · 3PL finance ops</p>
 <h1>Reconcile Fulfyld Billing Detail Reports without losing the source row</h1>
 <p class="lede">Fulfyld publishes an itemized <strong>Billing Detail Report (BDR)</strong> per invoice. It is the right input for a tie-out — but only if every billed row keeps its original address, so a disputed line can be re-opened in the exact file it came from.</p>
 <h2>Getting the export</h2>
-<p>Fulfyld's billing guide describes itemized fee exports and provides a <strong>CSV attachment per invoice</strong> (delivered via Invoiced). The published example includes a service-type filter (<code>Charge_Category__c</code> in their example), so confirm the exact fee-label column in your own export before automating anything.</p>
+<p>Download the <strong>CSV attached to an Invoiced invoice</strong> or export the detailed Excel report from the Billing section of the Fulfyld dashboard. Check the header names in your own file before mapping the fee fields.</p>
 <h2>Fields that matter for a tie-out</h2>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="Fields to review"><table>
 <tr><th>Field</th><th>Use in reconciliation</th></tr>
 <tr><td>Date</td><td>Month bucket (normalize Excel serials to ISO dates first)</td></tr>
 <tr><td>Order number</td><td>Join key back to your order system</td></tr>
@@ -59,16 +58,18 @@
 <p>A consolidation and evidence workbook is <strong>not</strong> an error detector and not a ledger posting. It does not decide that a charge is wrong; it makes every charge re-openable. Published "3–15% billing leakage" figures in this market are vendor-reported — WareAudit's own site notes no independent study exists — so treat any error-rate claim, including ours if we ever made one, as marketing until measured on your own bills.</p>
 <div class="card">
 <h3>Do it with the tool</h3>
-<p>The <strong>Fulfillment Ledger</strong> reads any 3PL's CSV/XLSX exports (Fulfyld BDR included), builds both sheets in your browser, and never uploads a file. No API token, no Shopify install. Free evaluation; commercial use via a Polar license key at $49/month.</p>
-<p><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open / save the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
+<p>The <strong>Fulfillment Ledger</strong> reads CSV or Excel with headers <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. It also accepts <code>quantity</code> and <code>unit</code>. For a Fulfyld export, map service type to <code>label</code> and total amount to <code>total</code> in a working copy. Fill provider and currency from the invoice and retain the original row order. The workbook records the rows and checksum of the file you select.</p>
+<p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
 </div>
-<p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. Accessed {TODAY}.</p>
-
+<p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. </p>
 </main>
-<footer>
-  <div class="wrap">
-    <p>© 2026 Sync Sanctuary · rhemahq.com</p>
-    <p class="nav-links"><a href="../refund.html">Refunds</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../procurement.html">Procurement</a> · <a href="mailto:support@trimprocure.com">Support</a></p>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Sync Sanctuary</a>
+    <nav aria-label="Footer">
+      <a href="../guides/">Guides</a><a href="../refund.html">Refunds</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </nav>
+    <p>© 2026 Sync Sanctuary</p>
   </div>
 </footer>
 </body>

@@ -1,0 +1,29 @@
+  <article class="workbench" data-workbench="ledger" data-append data-product="n27">
+    <header class="bench-head">
+      <div><h2>Reconciliation workbook</h2><p>CSV or Excel inputs · files stay on this device</p></div>
+      <button class="button small" type="button" data-clear>Clear</button>
+    </header>
+    <div class="bench-body">
+      <div class="bench-input">
+        <h4>Input files</h4>
+        <div class="bench-actions">
+          <button class="button" type="button" data-sample>Load sample</button>
+          <label class="button file-control">Add invoices<input data-files type="file" multiple accept=".csv,.xlsx,.xls"></label>
+          <button class="button primary" type="button" data-build disabled>Build workbook</button>
+        </div>
+        <p class="bench-hint">Use columns <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. Format dates as YYYY-MM-DD or Excel dates. <code>quantity</code> and <code>unit</code> are optional. Keep credits negative.</p>
+        <p class="bench-status" data-status role="status"></p>
+      </div>
+      <div class="bench-output">
+        <div class="output-head">
+          <h4>Workbook preview</h4>
+          <button class="button small" type="button" data-download disabled>Download XLSX <span aria-hidden="true">↓</span></button>
+        </div>
+        <p class="bench-empty" data-empty>The fee rollup and source references will appear here.</p>
+        <div class="bench-results" data-results hidden>
+          <div id="summary" data-summary></div>
+          <div id="sources" data-receipt-table></div>
+        </div>
+      </div>
+    </div>
+  </article>
