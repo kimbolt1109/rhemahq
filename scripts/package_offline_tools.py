@@ -29,7 +29,7 @@ def package_tool(title, filename, directory, extra):
         f"Extract the entire ZIP, then open {entry} in a current browser.\n"
         "Keep the folders together. Load a sample or choose your own files to begin.\n"
         "The tool processes files offline. See LICENSE.txt for evaluation and commercial terms.\n"
-        "Support: support@trimprocure.com\n"
+        "Support: support@rhemahq.com\n"
     )
     destination = SITE / "tools" / f"{filename}.zip"
     files = {

@@ -12,7 +12,7 @@ from string import Template
 SITE = Path(__file__).resolve().parents[1]
 BASE = "https://rhemahq.com"
 TODAY = "2026-11-23"
-SUPPORT = "support@trimprocure.com"  # swap to support@rhemahq.com once the domain mailbox exists
+SUPPORT = "support@rhemahq.com"
 
 TPL = Template("""<!doctype html>
 <html lang="en">
