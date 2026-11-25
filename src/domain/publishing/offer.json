@@ -2,9 +2,9 @@
   "slug": "ojs-galley-studio",
   "name": "OJS Galley Studio",
   "sku": "n13",
-  "price": "$59",
-  "period": "month",
   "archive": "ojs-galley-studio.zip",
   "download_label": "Download ZIP",
-  "checkout": "https://buy.polar.sh/polar_cl_oYpKZOhybJSKDXGNpBX2cgRC5MuWHki2MZM96264pL2?utm_source=rhemahq&utm_medium=site&utm_campaign=n13_galley"
+  "availability": "Free GPLv3 download",
+  "inquiry": "mailto:support@rhemahq.com?subject=Galley%20production%20inquiry",
+  "inquiry_label": "Ask about production help"
 }

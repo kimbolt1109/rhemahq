@@ -1,6 +1,6 @@
 # Sync Sanctuary
 
-Static product network for Rhema HQ. The hub connects Fulfillment Ledger, Moodle Release Pack, and OJS Galley Studio. Each product has its own site, workflow, and release assets.
+Static product network for Rhema HQ. The hub connects Fulfillment Ledger, Assessment Release Pack, and OJS Galley Studio. Each product has its own site, workflow, and release assets.
 
 ## Run locally
 

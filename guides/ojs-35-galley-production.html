@@ -46,25 +46,25 @@
 <ol>
 <li><strong>DOCX → HTML</strong> with pandoc (<code>--to=html5</code>), preserving structure: abstract, headings, tables, figures, references.</li>
 <li><strong>DOCX → JATS</strong> with pandoc's <code>jats_publishing</code> writer, then insert the journal's volume/issue metadata into the XML.</li>
-<li><strong>Validate JATS</strong> against the official Publishing 1.2 MathML2 DTD. A galley that fails DTD validation will fail downstream indexing — validate before upload, not after.</li>
+<li><strong>Validate JATS</strong> against the official Publishing 1.2 MathML2 DTD. Check the receiving indexer’s requirements as part of submission review.</li>
 <li><strong>HTML → PDF</strong> with a paged-media renderer (a headless browser print pipeline works; commercial engines like PrinceXML offer PDF/UA). Two-column layout, running heads, figure placement.</li>
 <li><strong>Register</strong> the three files on the submission via OJS's galley repositories (or the UI), associate figures as dependent files, and verify stored checksums match the originals.</li>
 </ol>
 <div class="card">
 <h3>Verified, not asserted</h3>
 <p>This pipeline was executed end-to-end on a disposable <strong>OJS 3.5.0.4</strong> installation: a generated DOCX produced PDF, HTML and JATS; the JATS passed the official Publishing 1.2 MathML2 DTD; all three galleys registered natively on one draft with the PNG associated as a dependent file; MIME types matched and all four files matched their original SHA-256 in OJS private storage.</p>
-<p class="page-actions"><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the evaluation zip</a><a class="cta" href="../#get">License and pricing</a></p>
+<p class="page-actions"><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the GPLv3 release</a><a class="cta" href="../services.html">Ask about production help</a></p>
 </div>
 <h2>Honest limits</h2>
 <ul>
 <li><strong>Complex layouts need an editor.</strong> Free DOCX→JATS converters (including the OJS <code>docxConverter</code> plugin) handle simple articles; a journal editor in the PKP forum reports their journal was "too complex for it". Multi-column figures, custom floats and heavy math still need review.</li>
 <li><strong>JATS display is a separate problem.</strong> Producing valid JATS does not give you a working in-OJS viewer; plan for the viewer maintenance risk.</li>
-<li><strong>Native production is coming.</strong> PKP's lead has stated OJS will integrate an OS-APS/SciFlow-derived editor with in-browser HTML→PDF (Vivliostyle), targeted at 3.6, with DOCX import still at pilot stage as of late 2025. JATS export is not in that stated plan. Watch the 3.6 release notes before assuming any external tool is permanently necessary.</li>
+<li><strong>Native production is planned for OJS 3.6.</strong> PKP describes built-in HTML, PDF and JATS XML output. Review the release notes and test your house style when the features are available on your installation.</li>
 <li><strong>Version drift.</strong> Our native verification ran on 3.5.0.4; 3.5.0-6 is current. Re-run the fixture on your exact version before relying on it.</li>
 </ul>
-<h2>When a subscription beats per-article</h2>
-<p>Per-article services run $5–$49/article in the current market. A $59/month local pipeline breaks even against a $25/article service at roughly 3 articles/month, and against $25/article at ~29 articles/year if you only need XML — the three-format bundle plus local, editable source is what changes the math for a journal producing ~40 articles/year.</p>
-<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>; <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>; <a href="https://forum.pkp.sfu.ca/t/info-on-tech-stack-behind-new-article-production-in-ojs-3-5-3-6/97196">PKP forum thread 97196</a> (staff statements, Oct 2025); <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a> (3.5.0-6, Nov 2026). </p>
+<h2>Compare production options on one article</h2>
+<p>Use the same accepted manuscript and house style for each option. Include setup, editor review and corrections in your estimate. If you need a handoff by a specific date, <a href="../services.html">ask about a scoped galley pack</a>.</p>
+<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>, <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>, <a href="https://pkp.sfu.ca/2026/05/26/ojs-3-6-bringing-manuscript-editing-and-production-under-one-roof/">PKP’s OJS 3.6 production plan</a>, and <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a>.</p>
 </main>
 <footer class="site-footer">
   <div class="container footer-inner">

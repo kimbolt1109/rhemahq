@@ -25,16 +25,36 @@ test("each workbench bundle depends only on its own product domain", async () =>
   }
 });
 
-test("the hub and dedicated product sites share each offer and canonical route", async () => {
+test("the hub and dedicated product sites share each offer action and canonical route", async () => {
   const hub = await read("index.html");
   for (const context of contexts) {
     const offer = JSON.parse(await read(`src/domain/${context}/offer.json`));
     const page = await read(`${offer.slug}/index.html`);
-    const escapedCheckout = offer.checkout.replaceAll("&", "&amp;");
+    const escapedAction = (offer.checkout ?? offer.inquiry).replaceAll("&", "&amp;");
     assert.ok(hub.includes(`href="./${offer.slug}/"`));
     assert.ok(page.includes(`rel="canonical" href="https://rhemahq.com/${offer.slug}/"`));
-    for (const document of [hub, page]) assert.ok(document.includes(`href="${escapedCheckout}"`));
+    for (const document of [hub, page]) assert.ok(document.includes(`href="${escapedAction}"`));
   }
+});
+
+test("Galley Studio has a GPL release and inquiry without a purchase action", async () => {
+  const [hub, product] = await Promise.all([read("index.html"), read("ojs-galley-studio/index.html")]);
+  assert.match(product, /GNU GPL version 3/);
+  assert.match(product, /href="\.\.\/tools\/ojs-galley-studio\.zip" download/);
+  for (const document of [hub, product]) {
+    assert.doesNotMatch(document, /data-track="checkout_click" data-product="n13"/);
+    assert.match(document, /data-track="support_click" data-product="n13"/);
+  }
+});
+
+test("manual services and institutional purchases describe their separate payment paths", async () => {
+  const [services, procurement] = await Promise.all([read("services.html"), read("procurement.html")]);
+  assert.match(services, /mailto:support@rhemahq\.com\?subject=Service%20inquiry/);
+  assert.doesNotMatch(services, /Polar/);
+  assert.match(procurement, /Assessment Release Pack/);
+  assert.match(procurement, /card payment through Polar/);
+  assert.match(procurement, /before ordering if your institution needs purchase-order payment/);
+  assert.doesNotMatch(procurement, /W-9|Moodle Release Pack/);
 });
 
 test("the public galley proof files match the Galley Studio checksum manifest", async () => {

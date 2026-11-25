@@ -1,11 +1,11 @@
 <header class="galley-header">
   <div class="container product-nav">
     <a class="product-hub" href="../"><span aria-hidden="true">←</span> Rhema HQ</a>
-    <a class="galley-wordmark" href="./" aria-current="page">OJS Galley Studio</a>
+    <a class="galley-wordmark" href="./" aria-current="page">$name</a>
     <nav aria-label="Product">
       <a href="#proofs">Proofs</a>
       <a href="../guides/ojs-35-galley-production.html">Production guide</a>
-      <a class="product-nav-license" href="#license">License</a>
+      <a class="product-nav-license" href="#license">Download &amp; support</a>
     </nav>
   </div>
 </header>
@@ -97,16 +97,15 @@ $format_panels
   <section id="license" class="container product-section product-offer galley-license" aria-labelledby="license-title" data-product-reveal>
     <div>
       <h2 id="license-title">The production desk.</h2>
-      <p>Process files locally with Python and Pandoc. The optional registration companion targets OJS 3.5 and was verified on 3.5.0.4.</p>
+      <p>Process files locally with Python and Pandoc. The optional registration companion was verified on a test OJS 3.5.0.4 installation.</p>
       <a class="text-link" href="../guides/ojs-35-galley-production.html">Read the OJS production guide <span aria-hidden="true">→</span></a>
     </div>
     <div class="product-purchase">
-      <p class="product-price"><strong>$price</strong><span> / $period</span></p>
+      <p>The download includes the GNU GPL version 3 license. For hands-on production help, ask about your manuscript, outputs, and deadline.</p>
       <div class="actions">
-        <a class="button primary" href="$checkout" data-track="checkout_click" data-product="$sku">Buy license <span aria-hidden="true">↗</span></a>
-        <a class="button" href="$download" download data-track="eval_download" data-product="$sku">Download Studio <span aria-hidden="true">↓</span></a>
+        <a class="button primary" href="$download" download data-track="eval_download" data-product="$sku">Download Studio <span aria-hidden="true">↓</span></a>
+        <a class="button" href="$inquiry" data-track="support_click" data-product="$sku">$inquiry_label</a>
       </div>
-      <a class="text-link" href="../procurement.html">Institutional procurement</a>
     </div>
   </section>
 </main>

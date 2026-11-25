@@ -120,13 +120,26 @@ def product_page(context, product, products):
 
 
 def hub_offer(product):
+    values = offer_links(product, "./")
+    if "checkout" in product:
+        availability = Template('<p class="price">$price <span>/ $period</span></p>').substitute(values)
+        action = Template(
+            '<a class="button primary" href="$checkout" data-track="checkout_click" data-product="$sku" '
+            'aria-label="Buy $name license">Buy license <span aria-hidden="true">↗</span></a>'
+        ).substitute(values)
+    else:
+        availability = Template("<p>$availability</p>").substitute(values)
+        action = Template(
+            '<a class="button primary" href="$inquiry" data-track="support_click" data-product="$sku">'
+            '$inquiry_label</a>'
+        ).substitute(values)
     return Template("""        <article class="purchase-row">
-          <div><h3><a href="./$slug/">$name</a></h3><p class="price">$price <span>/ $period</span></p></div>
+          <div><h3><a href="./$slug/">$name</a></h3>$availability_line</div>
           <div class="actions">
             <a class="button" href="$download" download data-track="eval_download" data-product="$sku">$download_label <span aria-hidden="true">↓</span></a>
-            <a class="button primary" href="$checkout" data-track="checkout_click" data-product="$sku" aria-label="Buy $name license">Buy license <span aria-hidden="true">↗</span></a>
+            $offer_action
           </div>
-        </article>""").substitute(offer_links(product, "./"))
+        </article>""").substitute(values, availability_line=availability, offer_action=action)
 
 
 if __name__ == "__main__":
@@ -137,7 +150,9 @@ if __name__ == "__main__":
         if context in TOOLS:
             feature = FEATURES / context
             workbench = (feature / "workbench.html").read_text(encoding="utf-8").rstrip()
-            emit(f"tools/{TOOLS[context]}/index.html", render(feature / "tool.html", workbench=workbench) + "\n")
+            emit(f"tools/{TOOLS[context]}/index.html",
+                 render(feature / "tool.html", workbench=workbench, name=escape(product["name"])) + "\n")
     rows = "\n".join(map(hub_offer, products.values()))
-    emit("index.html", render(FEATURES / "hub/site.html", product_offers=rows) + "\n")
+    emit("index.html", render(FEATURES / "hub/site.html", product_offers=rows,
+                              learning_name=escape(products["learning"]["name"])) + "\n")
     print(f"Emitted the Rhema HQ hub, {len(products)} product sites and {len(TOOLS)} standalone tools.")

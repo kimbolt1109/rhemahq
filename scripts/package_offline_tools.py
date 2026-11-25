@@ -1,4 +1,5 @@
 """Rebuild the two offline browser tool ZIPs served in tools/."""
+import json
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
@@ -13,25 +14,26 @@ COMMON = (
     "assets/fonts/newsreader-OFL.txt",
 )
 TOOLS = (
-    ("Fulfillment Ledger", "fulfillment-ledger", "ledger", (
+    ("fulfillment", "ledger", (
         "assets/workbenches/fulfillment.js",
         "tools/ledger/vendor/xlsx.full.min.js",
         "tools/ledger/vendor/LICENSE",
     )),
-    ("Moodle Release Pack", "moodle-release-pack", "moodle", ("assets/workbenches/learning.js",)),
+    ("learning", "moodle", ("assets/workbenches/learning.js",)),
 )
 
 
-def package_tool(title, filename, directory, extra):
+def package_tool(context, directory, extra):
+    product = json.loads((SITE / f"src/domain/{context}/offer.json").read_text(encoding="utf-8"))
     entry = f"tools/{directory}/index.html"
     readme = (
-        f"{title}\n\n"
+        f"{product['name']}\n\n"
         f"Extract the entire ZIP, then open {entry} in a current browser.\n"
         "Keep the folders together. Load a sample or choose your own files to begin.\n"
         "The tool processes files offline. See LICENSE.txt for evaluation and commercial terms.\n"
         "Support: support@rhemahq.com\n"
     )
-    destination = SITE / "tools" / f"{filename}.zip"
+    destination = SITE / "tools" / product["archive"]
     files = {
         "README.txt": readme.encode("utf-8"),
         "LICENSE.txt": (SITE / "tools/LICENSE.txt").read_bytes(),

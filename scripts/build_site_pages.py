@@ -11,8 +11,10 @@ from string import Template
 
 SITE = Path(__file__).resolve().parents[1]
 BASE = "https://rhemahq.com"
-TODAY = "2026-11-23"
+TODAY = "2026-11-26"
 SUPPORT = "support@rhemahq.com"
+LEARNING_OFFER = json.loads((SITE / "src/domain/learning/offer.json").read_text(encoding="utf-8"))
+LEARNING_NAME = escape(LEARNING_OFFER["name"])
 
 TPL = Template("""<!doctype html>
 <html lang="en">
@@ -96,7 +98,7 @@ def cta_row(root="./"):
 emit("refund.html", "Refunds — Sync Sanctuary", "How refunds work for Sync Sanctuary tools purchased through Polar as merchant of record.", f"""
 <p class="kicker">Policies</p>
 <h1>Refunds</h1>
-<p class="lede">Purchases are processed by <strong>Polar</strong> as merchant of record. Polar handles payment, tax and the refund transaction; we handle the product and your license.</p>
+<p class="lede">For browser-tool licenses purchased through <strong>Polar</strong>, Polar handles payments, tax and refunds as merchant of record. We handle the product and your license.</p>
 <h2>How to request a refund</h2>
 <ol>
 <li>Reply to your Polar receipt email, or use the customer portal link in that email, and request a refund from Polar.</li>
@@ -107,10 +109,10 @@ emit("refund.html", "Refunds — Sync Sanctuary", "How refunds work for Sync San
 <ul>
 <li>On a refunded order, the associated <strong>license key is revoked</strong> and commercial use of the tool must stop.</li>
 <li>For subscriptions, cancellation stops future billing at the end of the paid period unless Polar refunds the current period.</li>
-<li>Files you already produced with the tool remain yours. The tools run locally; we never hold your invoices, manuscripts or question banks, so there is nothing for us to delete on your behalf.</li>
+<li>Files you already produced with a self-serve tool remain yours. The software processes those files on your device.</li>
 </ul>
 <h2>Before you buy</h2>
-<p>All three tools offer free evaluation downloads. The <a href="./#demos">browser demos</a> let you test Fulfillment Ledger and Moodle Release Pack with a sample or your own files.</p>
+<p>Try Fulfillment Ledger and {LEARNING_NAME} with a sample or your own files in the <a href="./#demos">browser demos</a>. Galley Studio is available under the license in its download.</p>
 <div class="note">Refund processing fees charged by the payment network are not returned to us by Polar; this does not change the amount Polar refunds you under its terms.</div>
 {cta_row()}
 """)
@@ -131,25 +133,24 @@ emit("privacy.html", "Privacy — Sync Sanctuary", "What rhemahq.com and the Syn
 <li>The homepage keeps interaction events in memory. It sends them to an analytics service only when one is configured. The site currently ships without an analytics provider or advertising scripts.</li>
 </ul>
 <h2>Checkout</h2>
-<p>Payment is handled entirely by <strong>Polar</strong> as merchant of record. Polar collects the billing and payment data needed to process the order, calculate tax and issue your receipt and invoice, under Polar's privacy policy. We receive order metadata (product, amount, status) and the contact email you provide, which we use for support and license delivery.</p>
+<p>For purchases using <strong>Polar</strong> checkout, Polar collects billing and payment data to process the order, calculate tax and issue receipts and invoices under its privacy policy. We receive order details and the contact email you provide for support and license delivery.</p>
 <h2>Support email</h2>
 <p>If you write to <a href="mailto:{SUPPORT}">{SUPPORT}</a>, we keep the correspondence to answer you and to improve the product. We do not sell or share it. Ask us to delete it at any time.</p>
 <h2>Files you send us</h2>
-<p>If you send files for a service engagement, we use them for that engagement. You can request deletion by emailing support.</p>
+<p>For an agreed service engagement, we confirm file handling before you send source material. You can request deletion by emailing support.</p>
 <h2>Retention and rights</h2>
-<p>Order records are retained as required for tax and accounting through Polar. You may request access, correction or deletion of correspondence we hold by emailing support.</p>
+<p>Records of purchases through Polar are retained as required for tax and accounting. You may request access, correction or deletion of correspondence we hold by emailing support.</p>
 <div class="note">Last updated {TODAY}. Questions: <a href="mailto:{SUPPORT}">{SUPPORT}</a>.</div>
 """)
 
-emit("terms.html", "Terms — Sync Sanctuary", "Evaluation and commercial license terms for Sync Sanctuary tools; purchases governed by Polar buyer terms.", f"""
+emit("terms.html", "Terms — Sync Sanctuary", "Browser-tool licenses, Galley Studio's GNU GPL release, and the terms for purchases through Polar.", f"""
 <p class="kicker">Policies</p>
 <h1>Terms</h1>
-<p class="lede">These terms cover use of rhemahq.com and the Sync Sanctuary tools. The purchase transaction itself is governed by <strong>Polar's buyer terms</strong>, since Polar is the merchant of record.</p>
-<h2>Evaluation and commercial use</h2>
+<p class="lede">These terms cover use of rhemahq.com. Purchases made through Polar are governed by <strong>Polar's buyer terms</strong>.</p>
+<h2>Software licenses</h2>
 <ul>
-<li><strong>Evaluation is free.</strong> You may download and run the tools to evaluate them for your own internal, non-commercial assessment, including on representative copies of your files.</li>
-<li><strong>Commercial use requires a valid license key</strong> purchased through Polar: one non-transferable seat per key, for internal business use. Each download's <code>LICENSE.txt</code> is the controlling license text; these terms summarize it.</li>
-<li>The OJS Galley Studio companion scripts are additionally offered under <strong>GPL-3.0</strong> as stated in their license file; the commercial license covers the packaged product, support and updates.</li>
+<li><strong>Fulfillment Ledger and {LEARNING_NAME}.</strong> Internal, non-commercial evaluation is free. Commercial use requires a valid license key for one non-transferable seat.</li>
+<li><strong>OJS Galley Studio.</strong> The included <code>LICENSE.txt</code> sets out the GNU GPL version 3 terms for the covered files. Any production or support engagement has its own written scope.</li>
 </ul>
 <h2>What the tools do and do not do</h2>
 <ul>
@@ -159,8 +160,8 @@ emit("terms.html", "Terms — Sync Sanctuary", "Evaluation and commercial licens
 </ul>
 <h2>Availability, support and changes</h2>
 <ul>
-<li>Support is best-effort email to <a href="mailto:{SUPPORT}">{SUPPORT}</a> for licensed customers.</li>
-<li>Subscriptions renew until cancelled through Polar's customer portal; annual licenses renew annually. Prices are those shown at checkout.</li>
+<li>Browser-tool license customers can request best-effort email support at <a href="mailto:{SUPPORT}">{SUPPORT}</a>.</li>
+<li>Manage subscriptions bought through Polar in its customer portal. Prices and billing terms are shown at checkout.</li>
 <li>We may update the tools and these terms; material changes to licensed functionality will be noted in the product README.</li>
 </ul>
 <h2>Warranty and liability</h2>
@@ -173,7 +174,7 @@ emit("terms.html", "Terms — Sync Sanctuary", "Evaluation and commercial licens
 emit("thanks.html", "After checkout — Sync Sanctuary", "Find your Polar receipt and license and download the Sync Sanctuary tools.", f"""
 <p class="kicker">After checkout</p>
 <h1>Your receipt and license</h1>
-<p class="lede">Once payment is complete, Polar emails the receipt and license to the address you entered at checkout.</p>
+<p class="lede">After paying for a browser-tool license through Polar, check your order email for the receipt and license details.</p>
 <div class="card">
 <h2>Find your order</h2>
 <ol>
@@ -187,9 +188,9 @@ emit("thanks.html", "After checkout — Sync Sanctuary", "Find your Polar receip
 <p class="page-actions">
 <a class="cta" href="./tools/ojs-galley-studio.zip" download>OJS Galley Studio</a>
 <a class="cta" href="./tools/fulfillment-ledger.zip" download>Fulfillment Ledger</a>
-<a class="cta" href="./tools/moodle-release-pack.zip" download>Moodle Release Pack</a>
+<a class="cta" href="./tools/moodle-release-pack.zip" download>{LEARNING_NAME}</a>
 </p>
-<p class="note">Extract the ZIP and follow the included instructions. Commercial use requires a valid license.</p>
+<p class="note">Extract the ZIP and follow the included instructions. Each download contains its software license.</p>
 <script>
 const reference = new URLSearchParams(location.search).get("checkout_id");
 if (reference) {{
@@ -200,66 +201,60 @@ if (reference) {{
 """, indexable=False)
 
 # ---------------------------------------------------------------- procurement
-emit("procurement.html", "Procurement one-pager — Moodle Assessment Release Pack", "Institutional purchasing information for the Moodle Assessment Release Pack: price, verification, PO and invoice path.", f"""
+emit("procurement.html", f"Institutional procurement — {LEARNING_OFFER['name']}", "Annual seat licensing, tested Moodle versions and institutional purchase requirements.", f"""
 <p class="kicker">For institutions · print-friendly</p>
-<h1>Moodle Release Pack</h1>
+<h1>{LEARNING_NAME}</h1>
 <p class="lede">A verified question-bank handoff for Moodle: merges previously exported Moodle XML banks into one import file plus a per-question receipt — category, stable id, source line and SHA-256 — so a reviewer can spot-check before importing.</p>
 <div class="card">
 <h3>At a glance</h3>
 <div class="scroll" tabindex="0" role="region" aria-label="License and compatibility details"><table>
 <tr><th>Item</th><th>Detail</th></tr>
-<tr><td>Price</td><td class="num">USD 499 / year for one commercial seat</td></tr>
+<tr><td>Price per commercial seat</td><td class="num">{escape(LEARNING_OFFER["price"])} / {escape(LEARNING_OFFER["period"])} (USD)</td></tr>
 <tr><td>License</td><td>One non-transferable commercial seat per key; evaluation free</td></tr>
 <tr><td>Verified Moodle versions</td><td>4.5.16 LTS, 5.2.5, 5.3.1 (native import + round-trip, teacher/student permissions)</td></tr>
 <tr><td>Question types</td><td>multichoice, truefalse, shortanswer, numerical, essay, cloze; embedded files preserved</td></tr>
 <tr><td>Data handling</td><td>Runs locally in the browser; question banks are never uploaded</td></tr>
 <tr><td>Merchant of record</td><td>Polar — handles tax, receipts and invoices</td></tr>
 <tr><td>Support</td><td>Email <a href="mailto:{SUPPORT}">{SUPPORT}</a> (best-effort, licensed customers)</td></tr>
-<tr><td>Renewal</td><td>Annual; reminder outreach 60 days before anniversary</td></tr>
+<tr><td>Billing</td><td>Annual</td></tr>
 </table></div>
 </div>
-<h2>Purchase order and invoice path</h2>
+<h2>Buying for an institution</h2>
 <ol>
-<li><strong>Quote:</strong> email <a href="mailto:{SUPPORT}?subject=Quote%20request%20—%20Moodle%20Assessment%20Release%20Pack">{SUPPORT}</a> with your institution name, billing contact and quantity; we return a formal quote.</li>
-<li><strong>Vendor forms:</strong> W-9 / vendor-registration / security questionnaires — request by email; we complete and return them.</li>
-<li><strong>Payment:</strong> card checkout via Polar (link provided on the quote). Polar is merchant of record and calculates applicable tax.</li>
-<li><strong>Invoice:</strong> a tax invoice with your company/institution name and VAT or tax ID is self-served from the Polar customer portal linked in the receipt email — suitable for finance reimbursement.</li>
-<li><strong>Delivery:</strong> license key by email immediately after payment; tool download and README included.</li>
+<li><strong>Quote:</strong> email <a href="mailto:{SUPPORT}?subject=Institutional%20license%20quote">{SUPPORT}</a> with your institution name, billing contact and number of seats.</li>
+<li><strong>Requirements:</strong> tell us before ordering if your institution needs purchase-order payment or specific vendor, tax or security documents. We can confirm what is available for your purchase.</li>
+<li><strong>Online purchase:</strong> the current checkout accepts card payment through Polar. Review the billing details and price before paying. For invoices and license details after payment, use your Polar receipt and customer portal.</li>
 </ol>
 <h2>What it does not do</h2>
 <p>It does not author questions, assign grades, or decide import approval. Grading, content and pedagogical decisions remain the institution's. Duplicate question ids within a category are rejected rather than silently merged.</p>
 <h2>Evaluation before purchase</h2>
-<p>A free evaluation download and a live browser demo are available at <a href="https://rhemahq.com">rhemahq.com</a>. Run a representative exported bank through it before raising a PO.</p>
+<p>Open the <a href="./moodle-release-pack/#release">browser demo</a> with a representative exported bank to check the merge and receipt before purchasing.</p>
 <div class="note">Sync Sanctuary · rhemahq.com · {TODAY}. Purchases governed by Polar buyer terms; product license in the download's LICENSE.txt.</div>
 """)
 
 # ---------------------------------------------------------------- services
-emit("services.html", "Done-for-you handoffs — Sync Sanctuary", "Fixed-scope done-for-you reconciliation and release services, with the same source receipts as the tools.", f"""
+emit("services.html", "Production services — Sync Sanctuary", "Discuss a scoped invoice handoff, journal galley pack or assessment bank release.", f"""
 <p class="kicker">Services</p>
-<h1>Done-for-you, <em>same receipts.</em></h1>
-<p class="lede">If you would rather hand us the files than run the tool yourself, we offer three fixed-scope engagements. Each returns the finished artifact <strong>plus the source receipt</strong> — original file, worksheet or line, and SHA-256 per row — exactly as the tools produce.</p>
+<h1>Production services</h1>
+<p class="lede">Tell us about the handoff you need. We’ll confirm availability, deliverables, timing and payment arrangements before work begins.</p>
 <div class="card">
-<h3>Fulfillment close pack — USD 120</h3>
-<p>Up to 12 invoice files / 6,000 billed rows from any 3PL (CSV or XLSX). Returns one reconciliation workbook: fee rollup by provider, month, currency and label, plus a source-reference sheet. Turnaround: 2 business days after we receive the files.</p>
+<h3>Fulfillment close pack</h3>
+<p>A fee rollup and source-reference workbook from compatible CSV or Excel invoice exports. Tell us the provider, export format and number of files.</p>
 </div>
 <div class="card">
-<h3>Journal galley pack — USD 200 per article</h3>
-<p>One accepted Word manuscript plus metadata. Returns two-column PDF, standalone HTML and DTD-valid JATS Publishing 1.2 XML, registered as galleys on your OJS 3.5 submission (or delivered as files for your production editor). Turnaround: 3 business days. Complex layouts are flagged for editor review, not silently approximated.</p>
+<h3>Journal galley pack</h3>
+<p>A PDF, standalone HTML and JATS XML handoff for your editor, starting from an accepted Word manuscript. Tell us your publication date, house style and validation requirements.</p>
 </div>
 <div class="card">
-<h3>Moodle bank release — USD 250</h3>
-<p>Up to 10 exported Moodle XML banks / 500 questions. Returns one merged import file, counts per category, and a per-question receipt (category, id, source line, checksum). Duplicate ids are rejected and reported. Turnaround: 2 business days.</p>
+<h3>Assessment bank release</h3>
+<p>One merged assessment XML import file, category counts and a per-question receipt. Tell us the number of exports and questions you need to release.</p>
 </div>
-<h2>How it works</h2>
+<h2>Discuss your project</h2>
 <ol>
-<li>Email <a href="mailto:{SUPPORT}?subject=Service%20engagement">{SUPPORT}</a> with the scope above and your file counts.</li>
-<li>We confirm scope and a fixed price in writing before any work. You authorize us to process the files you send.</li>
-<li>Payment via Polar (merchant of record); invoice with your institution/company details available in the customer portal.</li>
-<li>Each engagement includes a license key for the corresponding tool, valid for the engagement plus 30 days, so your team can re-run or extend the work in-house.</li>
+<li>Email <a href="mailto:{SUPPORT}?subject=Service%20inquiry">{SUPPORT}</a> with the file formats, counts and deadline. Start with a description of the files.</li>
+<li>If we can take on the project, we’ll confirm price, payment, delivery, and file handling in writing.</li>
 </ol>
-<h2>Limits we keep</h2>
-<p>We do not make accounting postings, tax filings, grading decisions or editorial judgments. We serialize and tie out what you supplied; your qualified staff approve the result. Files are handled only for the engagement and deleted on request.</p>
-<div class="note">Service capacity is limited (a handful of engagements per month). If the queue is full we will say so and offer the self-serve tool instead.</div>
+<p>Your team reviews and approves the result.</p>
 {cta_row()}
 """)
 
@@ -267,7 +262,7 @@ emit("services.html", "Done-for-you handoffs — Sync Sanctuary", "Fixed-scope d
 GUIDES = [
     ("moodle-merge-multiple-xml.html", "Import multiple XML files into a Moodle question bank",
      "Step-by-step: merge several exported Moodle XML question banks into one import without losing categories, ids or embedded files.",
-     "How to import multiple Moodle XML question banks into one bank — categories, duplicate ids, embedded files, and a verification receipt.", """
+     "How to import multiple Moodle XML question banks into one bank — categories, duplicate ids, embedded files, and a verification receipt.", f"""
 <p class="kicker">Guide · Moodle</p>
 <h1>Import multiple XML files into a Moodle question bank</h1>
 <p class="lede">Moodle's import screen takes <strong>one file at a time</strong>. When a course arrives as several exported banks — per topic, per author, per legacy course — the naive loop loses categories, collides ids and silently drops embedded files. Here is the reliable path, and how to prove the result.</p>
@@ -298,7 +293,7 @@ GUIDES = [
 <p>Before importing, produce a row per question: <strong>source file, category, id, source line, SHA-256 of the question element</strong>. After importing, export the target bank and compare counts per category and a sample of checksums. If a row is missing or changed, you know exactly which source line to re-open — not "something went wrong with 300 questions".</p>
 <div class="card">
 <h3>Do it with the tool</h3>
-<p>The <strong>Moodle Release Pack</strong> does the merge, the duplicate rejection and the receipt in your browser — nothing uploaded. Free evaluation; commercial use via a Polar license key. Verified by native import and round-trip on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1, including cloze subquestions, embedded files and teacher/student import permissions.</p>
+<p>The <strong>{LEARNING_NAME}</strong> does the merge, the duplicate rejection and the receipt in your browser — nothing uploaded. Free evaluation; commercial use via a Polar license key. Verified by native import and round-trip on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1, including cloze subquestions, embedded files and teacher/student import permissions.</p>
 <p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open the tool</a><a class="cta" href="../procurement.html">Procurement one-pager</a></p>
 </div>
 <h2>Limits</h2>
@@ -307,7 +302,7 @@ GUIDES = [
 """),
     ("moodle-import-verification.html", "Verify a Moodle question import: counts, categories, checksums",
      "A repeatable spot-check procedure for Moodle question-bank imports: per-category counts, duplicate ids, cloze subquestions, embedded files and a SHA-256 receipt.",
-     "How to verify a Moodle question bank import actually preserved every question, category, cloze field and embedded file — with a checksum receipt.", """
+     "How to verify a Moodle question bank import actually preserved every question, category, cloze field and embedded file — with a checksum receipt.", f"""
 <p class="kicker">Guide · Moodle</p>
 <h1>Verify a Moodle question import, line by line</h1>
 <p class="lede">"Import successful" is not evidence. Moodle can report success while a category collapsed, a duplicate name overwrote a question, or an embedded file broke. This is a spot-check procedure you can run in ten minutes, and the receipt that makes it mechanical.</p>
@@ -331,7 +326,7 @@ GUIDES = [
 <p>A receipt row per question — <strong>source file, category, id, type, source line, SHA-256 of the question element</strong> — turns the spot-check into a diff. Re-run the export after import, recompute hashes, and any mismatch points at an exact source line. Keep the receipt with the release record so an auditor can re-open what was read.</p>
 <div class="card">
 <h3>Do it with the tool</h3>
-<p>The <strong>Moodle Release Pack</strong> emits the merged import file and this receipt together, rejects duplicate <code>(category, id)</code> pairs, and preserves embedded files. The identical contract was verified natively on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1: seven questions, six types, category split, cloze fields, four embedded attachments, teacher import and student denial.</p>
+<p>The <strong>{LEARNING_NAME}</strong> emits the merged import file and this receipt together, rejects duplicate <code>(category, id)</code> pairs, and preserves embedded files. The identical contract was verified natively on Moodle 4.5.16 LTS, 5.2.5 and 5.3.1: seven questions, six types, category split, cloze fields, four embedded attachments, teacher import and student denial.</p>
 <p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/moodle/index.html">Open the tool</a></p>
 </div>
 <h2>Limits</h2>
@@ -393,25 +388,25 @@ GUIDES = [
 <ol>
 <li><strong>DOCX → HTML</strong> with pandoc (<code>--to=html5</code>), preserving structure: abstract, headings, tables, figures, references.</li>
 <li><strong>DOCX → JATS</strong> with pandoc's <code>jats_publishing</code> writer, then insert the journal's volume/issue metadata into the XML.</li>
-<li><strong>Validate JATS</strong> against the official Publishing 1.2 MathML2 DTD. A galley that fails DTD validation will fail downstream indexing — validate before upload, not after.</li>
+<li><strong>Validate JATS</strong> against the official Publishing 1.2 MathML2 DTD. Check the receiving indexer’s requirements as part of submission review.</li>
 <li><strong>HTML → PDF</strong> with a paged-media renderer (a headless browser print pipeline works; commercial engines like PrinceXML offer PDF/UA). Two-column layout, running heads, figure placement.</li>
 <li><strong>Register</strong> the three files on the submission via OJS's galley repositories (or the UI), associate figures as dependent files, and verify stored checksums match the originals.</li>
 </ol>
 <div class="card">
 <h3>Verified, not asserted</h3>
 <p>This pipeline was executed end-to-end on a disposable <strong>OJS 3.5.0.4</strong> installation: a generated DOCX produced PDF, HTML and JATS; the JATS passed the official Publishing 1.2 MathML2 DTD; all three galleys registered natively on one draft with the PNG associated as a dependent file; MIME types matched and all four files matched their original SHA-256 in OJS private storage.</p>
-<p class="page-actions"><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the evaluation zip</a><a class="cta" href="../#get">License and pricing</a></p>
+<p class="page-actions"><a class="cta solid" href="../tools/ojs-galley-studio.zip">Download the GPLv3 release</a><a class="cta" href="../services.html">Ask about production help</a></p>
 </div>
 <h2>Honest limits</h2>
 <ul>
 <li><strong>Complex layouts need an editor.</strong> Free DOCX→JATS converters (including the OJS <code>docxConverter</code> plugin) handle simple articles; a journal editor in the PKP forum reports their journal was "too complex for it". Multi-column figures, custom floats and heavy math still need review.</li>
 <li><strong>JATS display is a separate problem.</strong> Producing valid JATS does not give you a working in-OJS viewer; plan for the viewer maintenance risk.</li>
-<li><strong>Native production is coming.</strong> PKP's lead has stated OJS will integrate an OS-APS/SciFlow-derived editor with in-browser HTML→PDF (Vivliostyle), targeted at 3.6, with DOCX import still at pilot stage as of late 2025. JATS export is not in that stated plan. Watch the 3.6 release notes before assuming any external tool is permanently necessary.</li>
+<li><strong>Native production is planned for OJS 3.6.</strong> PKP describes built-in HTML, PDF and JATS XML output. Review the release notes and test your house style when the features are available on your installation.</li>
 <li><strong>Version drift.</strong> Our native verification ran on 3.5.0.4; 3.5.0-6 is current. Re-run the fixture on your exact version before relying on it.</li>
 </ul>
-<h2>When a subscription beats per-article</h2>
-<p>Per-article services run $5–$49/article in the current market. A $59/month local pipeline breaks even against a $25/article service at roughly 3 articles/month, and against $25/article at ~29 articles/year if you only need XML — the three-format bundle plus local, editable source is what changes the math for a journal producing ~40 articles/year.</p>
-<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>; <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>; <a href="https://forum.pkp.sfu.ca/t/info-on-tech-stack-behind-new-article-production-in-ojs-3-5-3-6/97196">PKP forum thread 97196</a> (staff statements, Oct 2025); <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a> (3.5.0-6, Nov 2026). </p>
+<h2>Compare production options on one article</h2>
+<p>Use the same accepted manuscript and house style for each option. Include setup, editor review and corrections in your estimate. If you need a handoff by a specific date, <a href="../services.html">ask about a scoped galley pack</a>.</p>
+<p class="note">Sources: <a href="https://docs.pkp.sfu.ca/learning-ojs/en/production">PKP production guide</a>, <a href="https://public.nlm.nih.gov/projects/jats/publishing/1.2/">JATS Publishing 1.2 DTD</a>, <a href="https://pkp.sfu.ca/2026/05/26/ojs-3-6-bringing-manuscript-editing-and-production-under-one-roof/">PKP’s OJS 3.6 production plan</a>, and <a href="https://pkp.sfu.ca/software/ojs/download/">OJS download page</a>.</p>
 """),
     ("3pl-reconciliation-comparison.html", "3PL billing reconciliation options compared (2026)",
      "An honest comparison of Cartwright Labs ShipBob Billing Reconciler, WareAudit, SKU.io and the Fulfillment Ledger workbook: price, inputs, hosting, evidence.",
