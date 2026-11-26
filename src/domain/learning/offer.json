@@ -6,5 +6,11 @@
   "period": "year",
   "archive": "moodle-release-pack.zip",
   "download_label": "Download offline",
-  "checkout": "https://buy.polar.sh/polar_cl_z5qkgHnOO6GtdhD9UKfoMhnnLTCVEnRIwoNmi15D72I?utm_source=rhemahq&utm_medium=site&utm_campaign=n31_moodle"
+  "checkout": "https://buy.polar.sh/polar_cl_z5qkgHnOO6GtdhD9UKfoMhnnLTCVEnRIwoNmi15D72I?utm_source=rhemahq&utm_medium=site&utm_campaign=n31_moodle",
+  "quote_name": "Assessment Campus",
+  "quote_price": "$1,499",
+  "quote_period": "year",
+  "quote_scope": "One campus with up to three named operators",
+  "quote_anchor": "campus",
+  "quote_inquiry": "mailto:support@rhemahq.com?subject=Assessment%20Campus%20quote"
 }

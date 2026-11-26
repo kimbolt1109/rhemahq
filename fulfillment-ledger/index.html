@@ -126,6 +126,21 @@
       <div><h2>Reconciliation workbook</h2><p>CSV or Excel inputs · files stay on this device</p></div>
       <button class="button small" type="button" data-clear>Clear</button>
     </header>
+    <details id="ledger-agency" class="ledger-agency" data-agency>
+      <summary>Agency client workflows</summary>
+      <div class="ledger-agency-content">
+        <p class="bench-hint">Save up to four client workflows on this device. Switching clears the current files and results. Only workflow labels and mapping settings are saved.</p>
+        <div class="ledger-agency-row">
+          <label>Active client workflow<select data-agency-select><option value="">No client</option></select></label>
+          <button class="button" type="button" data-agency-remove disabled>Remove selected workflow</button>
+        </div>
+        <form class="ledger-agency-row">
+          <label>New client label<input name="workflowLabel" type="text" maxlength="60" required></label>
+          <button class="button" type="submit">Add workflow</button>
+        </form>
+        <p class="bench-status" role="status"></p>
+      </div>
+    </details>
     <div class="bench-body">
       <div class="bench-input">
         <h4>Input files</h4>
@@ -157,7 +172,7 @@
     <div class="container product-offer" data-product-reveal>
       <div>
         <h2 id="license-title">Take Ledger to close.</h2>
-        <p>Evaluate with the browser tool or offline ZIP. A license covers commercial use, support, and updates.</p>
+        <p>Evaluate with the browser tool or offline ZIP. The standard license covers one non-transferable commercial seat, with support and updates.</p>
       </div>
       <div class="product-purchase">
         <p class="product-price"><strong>$49</strong><span> / month</span></p>
@@ -166,6 +181,24 @@
           <a class="button" href="../tools/fulfillment-ledger.zip" download data-track="eval_download" data-product="n27">Download offline <span aria-hidden="true">↓</span></a>
         </div>
         <a class="text-link" href="../#access">Purchasing questions</a>
+        <a class="text-link" href="#agency">Explore Ledger Agency</a>
+      </div>
+    </div>
+  </section>
+  <section id="agency" class="ledger-license product-section" aria-labelledby="agency-title">
+    <div class="container product-offer" data-product-reveal>
+      <div>
+        <h2 id="agency-title">Ledger Agency</h2>
+        <p>One named operator for up to four authorized client workflows. Compare two monthly closes with an accounting reviewer before agreeing to the pilot.</p>
+        <p>Map compatible CSV or Excel exports on your device. Save column mappings by client and confirm them when the next export has the same column layout. Each charge or credit keeps its original file checksum and source row.</p>
+      </div>
+      <div class="product-purchase">
+        <p class="product-price"><strong>$249</strong><span> USD / month</span></p>
+        <p>Quote-based software license. Your written offer confirms the approved client workflows, terms and payment method.</p>
+        <div class="actions">
+          <a class="button primary" href="mailto:support@rhemahq.com?subject=Ledger%20Agency%20quote" data-track="support_click" data-product="n27-agency">Request a Ledger Agency quote</a>
+        </div>
+        <a class="text-link" href="#ledger-agency">Try local client workflows</a>
       </div>
     </div>
   </section>

@@ -1,6 +1,7 @@
 import { buildMoodleRelease } from "../../domain/learning/release.js";
 import { moodleReceiptCsv, readMoodle } from "../../infrastructure/learning/question-bank.js";
 import { wireWorkbench } from "../../workbench.js";
+import { wireCampusReview } from "./campus-review.js";
 import { MOODLE_SAMPLE } from "./sample.js";
 
 function saveText(filename, contents, type) {
@@ -29,3 +30,4 @@ const moodle = {
 };
 
 document.querySelectorAll('[data-workbench="moodle"]').forEach((root) => wireWorkbench(root, moodle));
+document.querySelectorAll("[data-campus-review]").forEach((root) => wireCampusReview(root, saveText));

@@ -3,6 +3,21 @@
       <div><h2>Reconciliation workbook</h2><p>CSV or Excel inputs · files stay on this device</p></div>
       <button class="button small" type="button" data-clear>Clear</button>
     </header>
+    <details id="ledger-agency" class="ledger-agency" data-agency>
+      <summary>Agency client workflows</summary>
+      <div class="ledger-agency-content">
+        <p class="bench-hint">Save up to four client workflows on this device. Switching clears the current files and results. Only workflow labels and mapping settings are saved.</p>
+        <div class="ledger-agency-row">
+          <label>Active client workflow<select data-agency-select><option value="">No client</option></select></label>
+          <button class="button" type="button" data-agency-remove disabled>Remove selected workflow</button>
+        </div>
+        <form class="ledger-agency-row">
+          <label>New client label<input name="workflowLabel" type="text" maxlength="60" required></label>
+          <button class="button" type="submit">Add workflow</button>
+        </form>
+        <p class="bench-status" role="status"></p>
+      </div>
+    </details>
     <div class="bench-body">
       <div class="bench-input">
         <h4>Input files</h4>

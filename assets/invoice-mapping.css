@@ -27,3 +27,27 @@
 }
 .invoice-mapping-grid input:disabled { opacity: .55; }
 .invoice-mapping .bench-actions { margin-top: .85rem; }
+.invoice-mapping .button, .invoice-mapping-grid :is(input, select) { min-height: 40px; }
+.invoice-mapping-remember { display: flex; align-items: center; gap: .5rem; min-height: 40px; font-size: .85rem; }
+.ledger-agency { border-bottom: 1px solid var(--line); }
+.ledger-agency summary {
+  min-height: 40px;
+  padding: .55rem clamp(.9rem, 2.3vw, 1.45rem);
+  cursor: pointer;
+  font-weight: 650;
+}
+.ledger-agency-content { padding: 0 clamp(.9rem, 2.3vw, 1.45rem) .95rem; }
+.ledger-agency-content > p:first-child { margin-top: 0; }
+.ledger-agency-row { display: flex; align-items: end; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
+.ledger-agency-row label { flex: 1 1 15rem; min-width: 0; font-size: .85rem; }
+.ledger-agency-row :is(input, select) {
+  display: block;
+  width: 100%;
+  margin-top: .2rem;
+  padding: .4rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.ledger-agency-row :is(input, select, .button) { min-height: 40px; }

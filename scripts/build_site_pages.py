@@ -149,7 +149,8 @@ emit("terms.html", "Terms — Sync Sanctuary", "Browser-tool licenses, Galley St
 <p class="lede">These terms cover use of rhemahq.com. Purchases made through Polar are governed by <strong>Polar's buyer terms</strong>.</p>
 <h2>Software licenses</h2>
 <ul>
-<li><strong>Fulfillment Ledger and {LEARNING_NAME}.</strong> Internal, non-commercial evaluation is free. Commercial use requires a valid license key for one non-transferable seat.</li>
+<li><strong>Fulfillment Ledger and {LEARNING_NAME}.</strong> Internal, non-commercial evaluation is free. A valid standard license key grants one non-transferable commercial seat.</li>
+<li><strong>Agency and Campus software quotes.</strong> A separately accepted agreement covers the licensee, each named operator, authorized client workflows or the named campus, the billing term and payment method. The licensee runs the software locally with authorized files. Rhema's production services follow their own written scope.</li>
 <li><strong>OJS Galley Studio.</strong> The included <code>LICENSE.txt</code> sets out the GNU GPL version 3 terms for the covered files. Any production or support engagement has its own written scope.</li>
 </ul>
 <h2>What the tools do and do not do</h2>
@@ -201,7 +202,7 @@ if (reference) {{
 """, indexable=False)
 
 # ---------------------------------------------------------------- procurement
-emit("procurement.html", f"Institutional procurement — {LEARNING_OFFER['name']}", "Annual seat licensing, tested Moodle versions and institutional purchase requirements.", f"""
+emit("procurement.html", f"Institutional procurement — {LEARNING_OFFER['name']}", "Annual seat licensing, campus software quotes, tested Moodle versions and institutional purchase requirements.", f"""
 <p class="kicker">For institutions · print-friendly</p>
 <h1>{LEARNING_NAME}</h1>
 <p class="lede">A verified question-bank handoff for Moodle: merges previously exported Moodle XML banks into one import file plus a per-question receipt — category, stable id, source line and SHA-256 — so a reviewer can spot-check before importing.</p>
@@ -225,6 +226,12 @@ emit("procurement.html", f"Institutional procurement — {LEARNING_OFFER['name']
 <li><strong>Requirements:</strong> tell us before ordering if your institution needs purchase-order payment or specific vendor, tax or security documents. We can confirm what is available for your purchase.</li>
 <li><strong>Online purchase:</strong> the current checkout accepts card payment through Polar. Review the billing details and price before paying. For invoices and license details after payment, use your Polar receipt and customer portal.</li>
 </ol>
+<section aria-labelledby="campus-purchasing">
+<h2 id="campus-purchasing">{escape(LEARNING_OFFER["quote_name"])}</h2>
+<p>{escape(LEARNING_OFFER["quote_price"])} USD per {escape(LEARNING_OFFER["quote_period"])} by written software quote. {escape(LEARNING_OFFER["quote_scope"])}.</p>
+<p>Tell us the purchasing entity, campus, number of operators, staging version, and documents or payment method your institution requires. Keep question banks on your device. We confirm the pilot scope and software payment route before accepting an order.</p>
+<p class="page-actions"><a class="cta solid" href="{escape(LEARNING_OFFER["quote_inquiry"])}">Request an {escape(LEARNING_OFFER["quote_name"])} quote</a><a class="cta" href="./{escape(LEARNING_OFFER["slug"])}/#{escape(LEARNING_OFFER["quote_anchor"])}">View campus license scope</a></p>
+</section>
 <h2>What it does not do</h2>
 <p>It does not author questions, assign grades, or decide import approval. Grading, content and pedagogical decisions remain the institution's. Duplicate question ids within a category are rejected rather than silently merged.</p>
 <h2>Evaluation before purchase</h2>

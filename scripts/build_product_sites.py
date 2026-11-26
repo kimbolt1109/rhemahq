@@ -135,13 +135,19 @@ def hub_offer(product):
             '<a class="button primary" href="$inquiry" data-track="support_click" data-product="$sku">'
             '$inquiry_label</a>'
         ).substitute(values)
+    quote_link = ""
+    if "quote_name" in product:
+        quote_link = Template(
+            '<p><a class="text-link" href="./$slug/#$quote_anchor">Explore $quote_name</a></p>'
+        ).substitute(values)
     return Template("""        <article class="purchase-row">
-          <div><h3><a href="./$slug/">$name</a></h3>$availability_line</div>
+          <div><h3><a href="./$slug/">$name</a></h3>$availability_line$quote_link</div>
           <div class="actions">
             <a class="button" href="$download" download data-track="eval_download" data-product="$sku">$download_label <span aria-hidden="true">↓</span></a>
             $offer_action
           </div>
-        </article>""").substitute(values, availability_line=availability, offer_action=action)
+        </article>""").substitute(values, availability_line=availability, offer_action=action,
+                                  quote_link=quote_link)
 
 
 if __name__ == "__main__":

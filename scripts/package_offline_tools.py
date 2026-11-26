@@ -31,7 +31,10 @@ def package_tool(context, directory, extra):
         f"{product['name']}\n\n"
         f"Extract the entire ZIP, then open {entry} in a current browser.\n"
         "Keep the folders together. Load a sample or choose your own files to begin.\n"
-        "The tool processes files offline. See LICENSE.txt for evaluation and commercial terms.\n"
+        "The tool processes files offline. Internal, non-commercial evaluation is free.\n"
+        "A valid standard Polar license key grants one non-transferable commercial seat.\n"
+        "Agency and Campus use follow the named operators and scope in a separately accepted written agreement.\n"
+        "See LICENSE.txt for the software license terms.\n"
         "Support: support@rhemahq.com\n"
     )
     destination = SITE / "tools" / product["archive"]

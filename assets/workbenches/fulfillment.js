@@ -30,6 +30,116 @@
     return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
   }
 
+  // src/domain/fulfillment/agency.js
+  var maxWorkflows = 4;
+  var agencyStorageKey = "rhema-ledger-agency-v1";
+  var invoiceFields = ["provider", "currency", "date", "label", "total", "quantity", "unit"];
+  function presetFields(mapping) {
+    const result = {};
+    for (const field of invoiceFields) {
+      const { column, value } = mapping?.[field] ?? {};
+      if (typeof column === "string" && /^[A-Z]+$/.test(column)) {
+        result[field] = { column };
+      } else if ((field === "provider" || field === "currency") && typeof value === "string") {
+        result[field] = { value: value.trim() };
+      }
+    }
+    return result;
+  }
+  function invoiceLayoutKey(columns) {
+    return sha256Hex(JSON.stringify(columns.map(({ column, label }) => [column, label])));
+  }
+  function agencyStore(storage) {
+    function list() {
+      const saved = storage.getItem(agencyStorageKey);
+      if (saved === null) return [];
+      const workflows = JSON.parse(saved);
+      if (!Array.isArray(workflows) || workflows.length > maxWorkflows || workflows.some((item) => typeof item?.id !== "string" || typeof item.label !== "string" || !item.presets || typeof item.presets !== "object" || Array.isArray(item.presets))) {
+        throw new Error("Saved workflow settings are invalid.");
+      }
+      return workflows.map(({ id, label, presets }) => ({
+        id,
+        label,
+        presets: Object.fromEntries(Object.entries(presets).filter(([signature]) => /^[0-9a-f]{64}$/.test(signature)).map(([signature, mapping]) => [signature, presetFields(mapping)]))
+      }));
+    }
+    function write(workflows) {
+      storage.setItem(agencyStorageKey, JSON.stringify(workflows));
+    }
+    return {
+      list,
+      add(name) {
+        const label = name.trim();
+        const workflows = list();
+        if (!label) throw new Error("Enter a client workflow label.");
+        if (workflows.length >= maxWorkflows) throw new Error("This tool supports four client workflows.");
+        if (workflows.some((item) => item.label.toLowerCase() === label.toLowerCase())) {
+          throw new Error("Choose a label distinct from your other workflows.");
+        }
+        write([...workflows, { id: crypto.randomUUID(), label, presets: {} }]);
+      },
+      remove(id) {
+        write(list().filter((workflow) => workflow.id !== id));
+      },
+      preset(id, signature) {
+        return list().find((workflow) => workflow.id === id)?.presets[signature];
+      },
+      savePresets(id, additions) {
+        const workflows = list();
+        const workflow = workflows.find((item) => item.id === id);
+        if (!workflow) return;
+        for (const [signature, mapping] of additions) {
+          if (!/^[0-9a-f]{64}$/.test(signature)) throw new Error("The column layout could not be identified.");
+          workflow.presets[signature] = presetFields(mapping);
+        }
+        write(workflows);
+      }
+    };
+  }
+  function decimal(number) {
+    const [mantissa, exponent = "0"] = String(number).split("e");
+    const [whole, fraction = ""] = mantissa.split(".");
+    return [BigInt(whole + fraction), Number(exponent) - fraction.length];
+  }
+  function addDecimal([left, leftPower], [right, rightPower]) {
+    const power = Math.min(leftPower, rightPower);
+    return [left * 10n ** BigInt(leftPower - power) + right * 10n ** BigInt(rightPower - power), power];
+  }
+  function spreadsheetNumber([coefficient, power]) {
+    const number = Number(String(coefficient) + "e" + power);
+    if (!Number.isFinite(number)) throw new Error("Close totals exceed the workbook's numeric range.");
+    return number;
+  }
+  function closeReview(rows, workflow) {
+    const totals = /* @__PURE__ */ new Map();
+    const positions = /* @__PURE__ */ new Set();
+    const zero = [0n, 0];
+    const trace = rows.map(({ file, sheet, row, sha256, provider, currency, date, label, total }) => {
+      const position = JSON.stringify([sha256, sheet, row]);
+      if (positions.has(position)) {
+        throw new Error("An invoice source position is repeated in " + file + " (" + sheet + ", " + row + "). Clear inputs and add each original file once.");
+      }
+      positions.add(position);
+      const month = date.slice(0, 7);
+      const key = JSON.stringify([currency, month]);
+      if (!totals.has(key)) totals.set(key, { workflow, currency, month, rows: 0, charges: zero, credits: zero });
+      const group = totals.get(key);
+      group.rows += 1;
+      const type = total < 0 ? "credits" : "charges";
+      group[type] = addDecimal(group[type], decimal(total));
+      return { workflow, file, sheet, row, sha256, provider, currency, date, label, total };
+    });
+    return {
+      totals: Array.from(totals.values(), (group) => ({
+        ...group,
+        charges: spreadsheetNumber(group.charges),
+        credits: spreadsheetNumber(group.credits),
+        net: spreadsheetNumber(addDecimal(group.charges, group.credits))
+      })),
+      trace
+    };
+  }
+
   // src/infrastructure/fulfillment/invoices.js
   var requiredFields = ["provider", "currency", "date", "label", "total"];
   var optionalFields = ["quantity", "unit"];
@@ -305,11 +415,13 @@
     <header class="bench-head"><div><h3>Match invoice columns</h3><p data-source></p></div></header>
     <form class="bench-input" method="dialog">
       <p class="bench-hint invoice-mapping-hint">Choose the source column for each field. Enter provider or currency once if it applies to the entire sheet.</p>
+      <p class="bench-hint invoice-mapping-hint" data-preset-note hidden></p>
       <div class="invoice-mapping-grid">${Object.entries(fieldLabels).map(([name, label]) => `<label>${label}<select name="${name}"></select></label>`).join("")}</div>
       <div class="invoice-mapping-grid invoice-mapping-defaults">
         <label>Provider for this sheet<input name="fixedProvider" type="text"></label>
         <label>Currency for this sheet<input name="fixedCurrency" type="text" maxlength="3" placeholder="USD"></label>
       </div>
+      <label class="invoice-mapping-remember" data-preset-choice hidden><input type="checkbox" name="keepPreset"> Remember this mapping for the selected workflow</label>
       <p class="bench-status" data-kind="error" role="alert"></p>
       <div class="bench-actions">
         <button class="button primary" value="apply">Read sheet</button>
@@ -319,6 +431,10 @@
     root.after(dialog);
     const form = dialog.querySelector("form");
     const error = dialog.querySelector("[role=alert]");
+    const sourceText = dialog.querySelector("[data-source]");
+    const presetNote = dialog.querySelector("[data-preset-note]");
+    const choice = dialog.querySelector("[data-preset-choice]");
+    const apply = form.querySelector('button[value="apply"]');
     const fields2 = form.elements;
     const defaults = { provider: fields2.fixedProvider, currency: fields2.fixedCurrency };
     for (const [name, input] of Object.entries(defaults)) {
@@ -326,17 +442,27 @@
         input.disabled = Boolean(event.target.value);
       });
     }
-    return ({ file, sheet, columns }) => {
+    function open({ file, sheet, columns }, workflow, preset) {
       form.reset();
       error.textContent = "";
-      dialog.querySelector("[data-source]").textContent = file + " · " + sheet;
+      sourceText.textContent = file + " · " + sheet;
+      presetNote.hidden = !preset;
+      presetNote.textContent = preset ? "Saved mapping for " + workflow.label + ". Confirm the columns and fixed values for this sheet." : "";
+      apply.textContent = preset ? "Confirm mapping and read" : "Read sheet";
+      choice.hidden = fields2.keepPreset.disabled = !workflow;
       for (const name of Object.keys(fieldLabels)) {
         const select = fields2.namedItem(name);
         const placeholder = defaults[name] ? "Use value below" : name === "quantity" || name === "unit" ? "Leave blank" : "Choose column";
         select.replaceChildren(new Option(placeholder, ""), ...columns.map(({ column, label }) => new Option(column + " · " + label, column)));
-        const matches = columns.filter(({ label }) => label.toLowerCase() === name);
-        if (matches.length === 1) select.value = matches[0].column;
-        if (defaults[name]) defaults[name].disabled = Boolean(select.value);
+        if (preset) select.value = preset[name]?.column ?? "";
+        else {
+          const matches = columns.filter(({ label }) => label.toLowerCase() === name);
+          if (matches.length === 1) select.value = matches[0].column;
+        }
+        if (defaults[name]) {
+          defaults[name].disabled = Boolean(select.value);
+          defaults[name].value = preset?.[name]?.value ?? "";
+        }
       }
       let selected;
       const submit = (event) => {
@@ -347,7 +473,7 @@
         }));
         try {
           validateInvoiceMapping(columns, mapping);
-          selected = mapping;
+          selected = { mapping, remember: Boolean(workflow && fields2.keepPreset.checked) };
         } catch (failure) {
           event.preventDefault();
           error.textContent = failure.message;
@@ -357,10 +483,127 @@
         form.addEventListener("submit", submit);
         dialog.addEventListener("close", () => {
           form.removeEventListener("submit", submit);
+          sourceText.textContent = presetNote.textContent = error.textContent = "";
+          for (const select of form.querySelectorAll("select")) select.replaceChildren();
+          form.reset();
           resolve(selected);
         }, { once: true });
         dialog.showModal();
       });
+    }
+    return {
+      open,
+      cancel() {
+        if (dialog.open) dialog.close("cancel");
+      }
+    };
+  }
+
+  // src/features/fulfillment/agency-workflows.js
+  function wireAgencyWorkflows(root, reset) {
+    const panel = root.querySelector("[data-agency]");
+    if (!panel) return;
+    function openTarget() {
+      if (globalThis.location.hash === "#" + panel.id) panel.open = true;
+    }
+    openTarget();
+    globalThis.addEventListener("hashchange", openTarget);
+    const select = panel.querySelector("[data-agency-select]");
+    const form = panel.querySelector("form");
+    const labelInput = form.elements.namedItem("workflowLabel");
+    const add = form.querySelector("button");
+    const remove = panel.querySelector("[data-agency-remove]");
+    const feedback = panel.querySelector("[role=status]");
+    const sample = root.querySelector("[data-sample]");
+    let selected;
+    let store;
+    function say(message) {
+      feedback.textContent = message;
+    }
+    function activate(workflow) {
+      if (selected?.id === workflow?.id) return;
+      selected = workflow;
+      select.value = workflow?.id ?? "";
+      sample.hidden = Boolean(workflow);
+      remove.disabled = !workflow;
+      reset();
+      say((workflow ? "Selected " + workflow.label + "." : "No client selected.") + " Invoice files and results cleared.");
+    }
+    function refresh() {
+      const available = store.list();
+      select.replaceChildren(new Option("No client", ""), ...available.map(({ id, label }) => new Option(label, id)));
+      activate(available.find((workflow) => workflow.id === selected?.id));
+      select.value = selected?.id ?? "";
+      labelInput.disabled = add.disabled = available.length >= maxWorkflows;
+      return available;
+    }
+    try {
+      store = agencyStore(globalThis.localStorage);
+      refresh();
+    } catch {
+      say("This browser could not read saved workflow settings. The Ledger can still run without a client.");
+      select.disabled = labelInput.disabled = add.disabled = remove.disabled = true;
+      return;
+    }
+    select.addEventListener("change", () => {
+      const id = select.value;
+      try {
+        activate(store.list().find((item) => item.id === id));
+      } catch {
+        activate(void 0);
+        select.value = "";
+        say("Saved workflow settings could not be read. Invoice files and results cleared.");
+      }
+    });
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      try {
+        store.add(labelInput.value);
+        form.reset();
+        refresh();
+        say("Workflow saved. Select it before you add invoices for that client.");
+        select.focus();
+      } catch (failure) {
+        say(failure.message);
+      }
+    });
+    remove.addEventListener("click", () => {
+      if (!selected || !globalThis.confirm("Remove the local workflow for " + selected.label + " and its mappings?")) return;
+      try {
+        store.remove(selected.id);
+        refresh();
+        say("Workflow removed. Invoice files and results cleared.");
+        select.focus();
+      } catch (failure) {
+        say(failure.message);
+      }
+    });
+    globalThis.addEventListener("storage", (event) => {
+      if (event.key !== agencyStorageKey && event.key !== null) return;
+      try {
+        refresh();
+      } catch {
+        activate(void 0);
+        select.value = "";
+        say("Saved workflow settings could not be read. Invoice files and results cleared.");
+      }
+    });
+    return {
+      active: () => selected,
+      preset(id, signature) {
+        try {
+          return store.preset(id, signature);
+        } catch {
+          say("Saved mappings could not be read. Check and select the source columns manually.");
+        }
+      },
+      save(id, presets) {
+        try {
+          store.savePresets(id, presets);
+        } catch {
+          say("The invoice loaded. These settings could not be saved for reuse.");
+        }
+      }
     };
   }
 
@@ -389,32 +632,69 @@
     xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(output.summary), "Fee rollup");
     const sources = output.sources.map((row) => ({ ...row, positionType: positionType(row.file) }));
     xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(sources), "Source references");
+    if (output.close) {
+      xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(output.close.totals), "Close review");
+      const trace = output.close.trace.map((row) => ({ ...row, positionType: positionType(row.file) }));
+      xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(trace), "Close source trace");
+    }
     xlsx.writeFile(workbook, "fulfillment_ledger.xlsx");
   }
   var positionType = (file) => /\.csv$/i.test(file) ? "CSV record" : "Excel row";
+  var shortenedHash = (hash) => hash.slice(0, 12) + "…";
   var ledger = {
     available: () => Boolean(globalThis.XLSX),
     sample: ledgerSample,
-    build: reconcileRows,
     download: saveWorkbook,
     inputName: "invoice rows",
     describe: (output) => output.summary.length + " rollup groups and " + output.sources.length + " source references.",
-    summary: (output) => ({
+    summary: (output) => output.close ? {
+      title: "Close review by month and currency",
+      columns: ["Workflow", "Month", "Currency", "Rows", "Charges", "Credits", "Net"],
+      rows: output.close.totals.map((row) => [row.workflow, row.month, row.currency, row.rows, row.charges, row.credits, row.net])
+    } : {
       title: "Fee rollup",
       columns: ["Provider", "Currency", "Month", "Label", "Rows", "Qty", "Unit", "Total"],
       rows: output.summary.map((row) => [row.provider, row.currency, row.month, row.label, row.count, row.quantity, row.unit, row.total])
-    }),
-    receipt: (output) => ({
+    },
+    receipt: (output) => output.close ? {
+      title: "Close source trace",
+      columns: ["File", "Sheet", "Position", "Position type", "Provider", "Date", "Label", "Currency", "Total", "SHA-256"],
+      rows: output.close.trace.map((row) => [row.file, row.sheet, row.row, positionType(row.file), row.provider, row.date, row.label, row.currency, row.total, shortenedHash(row.sha256)])
+    } : {
       title: "Source references",
       columns: ["File", "Sheet", "Position", "Position type", "Label", "Total", "SHA-256"],
-      rows: output.sources.map((row) => [row.file, row.sheet, row.row, positionType(row.file), row.label, row.total, row.sha256.slice(0, 12) + "…"])
-    })
+      rows: output.sources.map((row) => [row.file, row.sheet, row.row, positionType(row.file), row.label, row.total, shortenedHash(row.sha256)])
+    }
   };
   document.querySelectorAll('[data-workbench="ledger"]').forEach((root) => {
-    const chooseMapping = invoiceMappingDialog(root);
+    const mappingDialog = invoiceMappingDialog(root);
+    const agency = wireAgencyWorkflows(root, () => {
+      mappingDialog.cancel();
+      root.querySelector("[data-clear]").click();
+    });
     wireWorkbench(root, {
       ...ledger,
-      read: (file, isCurrent) => readInvoice(file, globalThis.XLSX, (source) => isCurrent() ? chooseMapping(source) : void 0)
+      build(rows) {
+        const output = reconcileRows(rows);
+        const workflow = agency?.active();
+        if (workflow) output.close = closeReview(rows, workflow.label);
+        return output;
+      },
+      async read(file, isCurrent) {
+        const workflow = agency?.active();
+        const additions = [];
+        const rows = await readInvoice(file, globalThis.XLSX, async (source) => {
+          if (!isCurrent()) return;
+          const signature = workflow ? await invoiceLayoutKey(source.columns) : void 0;
+          if (!isCurrent()) return;
+          const preset = workflow ? agency.preset(workflow.id, signature) : void 0;
+          const selection = await mappingDialog.open(source, workflow, preset);
+          if (selection?.remember) additions.push([signature, selection.mapping]);
+          return selection?.mapping;
+        });
+        if (isCurrent() && additions.length) agency.save(workflow.id, additions);
+        return rows;
+      }
     });
   });
 })();

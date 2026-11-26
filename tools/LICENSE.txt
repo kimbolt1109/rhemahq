@@ -1,7 +1,10 @@
 SYNC SANCTUARY END USER LICENSE AGREEMENT
-Grant: one non-transferable commercial-use seat per purchased Polar license key. Evaluation use is free; commercial use requires a valid key.
+Evaluation: internal, non-commercial evaluation is free.
+Standard grant: one non-transferable commercial-use seat per valid purchased Polar license key.
+Quoted grant: a separately accepted written software license agreement with Sync Sanctuary grants commercial use to the named operators within its signed scope. That agreement may authorize specified Ledger Agency client workflows or specified Assessment Campus use and controls the rights it expressly grants.
+Commercial use requires a valid purchased Polar license key or a current written software license agreement under one of these grants.
 Restrictions: no redistribution, resale, sublicensing, or removal of entitlement notices.
 Ownership: Sync Sanctuary retains all rights; the license is not a sale of the software.
 Warranty: provided AS IS without warranty of any kind; liability limited to the amount paid for the license.
-Termination: revocation of the license key ends the grant.
+Termination: revocation of a standard license key ends that grant. A quoted grant ends on expiration or termination of the written agreement.
 Support: support@rhemahq.com.
