@@ -394,7 +394,7 @@
   text-align: left;
   font: 400 clamp(1.7rem, 3.6vw, 2.65rem)/1.02 var(--serif);
 }
-.trace-chapter button span { color: #53775f; font: 650 .68rem/1.1 var(--mono); }
+.trace-chapter button span { color: var(--accent); font: 650 .68rem/1.1 var(--mono); }
 .trace-chapter button i { color: #4f735b; font: 500 .92rem/1 var(--sans); }
 .trace-chapter button[aria-current] { color: var(--green); }
 .trace-chapter p { max-width: 43ch; margin-top: .55rem; color: var(--muted); }
@@ -416,6 +416,7 @@
 .purchase-row h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .12em; }
 .price { margin-top: .32rem; color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; }
 .price span { color: var(--muted); font-size: .9rem; font-weight: 500; }
+.tier-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .75rem; margin-top: .35rem; color: var(--muted); font-size: .88rem; }
 .purchase-links { display: flex; flex-wrap: wrap; gap: .65rem 1.5rem; margin-top: 1.35rem; }
 .purchase-links .text-link { text-decoration-color: #b8dac47f; }
 .support { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 1rem 2rem; }

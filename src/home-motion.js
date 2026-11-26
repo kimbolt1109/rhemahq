@@ -17,6 +17,7 @@ function mountGallery(root) {
   const meter = root.querySelector("[data-gallery-meter]");
   const slides = [...track.querySelectorAll(".gallery-card")];
   const photos = slides.map((slide) => slide.querySelector(".gallery-photo img"));
+  const copies = slides.map((slide) => slide.querySelector(".gallery-copy"));
   const controls = [...rail.querySelectorAll("[data-gallery-control]")];
   let layout;
   let active = 0;
@@ -38,6 +39,10 @@ function mountGallery(root) {
     track.style.transform = "";
     rail.hidden = true;
     photos.forEach((photo) => { photo.style.transform = ""; });
+    copies.forEach((copy) => {
+      copy.style.removeProperty("--gallery-focus");
+      copy.style.pointerEvents = "";
+    });
   }
 
   function measure() {
@@ -88,6 +93,9 @@ function mountGallery(root) {
       if (Math.abs(stop - moved) < Math.abs(layout.stops[nearest] - moved)) nearest = index;
       const phase = clamp((layout.offsets[index] - moved) / layout.width, -1, 1);
       photos[index].style.transform = "translate3d(" + (-phase * 41) + "px, 0, 0) scale(1.18)";
+      const focus = clamp(1 - (Math.abs(phase) - .12) * 2.2);
+      copies[index].style.setProperty("--gallery-focus", focus.toFixed(3));
+      copies[index].style.pointerEvents = focus < .35 ? "none" : "";
     }
     select(nearest);
   }

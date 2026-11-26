@@ -124,7 +124,7 @@
   .gallery-section.is-pinned .gallery-track { display: flex; width: 100%; }
   .gallery-section.is-pinned .gallery-card { flex: 0 0 calc(100% - clamp(3.4rem, 7vw, 6.1rem)); }
   .gallery-section.is-pinned .gallery-photo { min-height: clamp(18rem, 53vh, 31rem); }
-  .gallery-section.is-pinned .gallery-copy { padding: clamp(1.25rem, 3.2vw, 3.3rem); }
+  .gallery-section.is-pinned .gallery-copy { padding: clamp(1.25rem, 3.2vw, 3.3rem); opacity: var(--gallery-focus, 1); }
   .gallery-section.is-pinned .gallery-crop::after {
     content: "";
     position: absolute;

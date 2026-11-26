@@ -53,6 +53,9 @@
 .page-content th { color: var(--ink); background: var(--wash); white-space: nowrap; }
 .page-content tr:last-child td { border-bottom: 0; }
 .page-content td.num { font-variant-numeric: tabular-nums; }
+.page-content td.state { color: var(--ink); font-weight: 650; white-space: nowrap; }
+.page-content td.state.none { color: var(--accent); }
+.page-content .privacy-glance h2 { margin: 0 0 .85rem; font-size: 1.65rem; }
 .page-content .guide-list { margin-block: 2rem; border-bottom: 1px solid var(--line); padding: 0; list-style: none; }
 .guide-list li { border-top: 1px solid var(--line); padding-block: 1rem; }
 .guide-list li a { color: var(--ink); font: 400 clamp(1.5rem, 3vw, 2.05rem)/1.1 var(--serif); text-decoration-color: #96ad97; text-decoration-thickness: 1px; }

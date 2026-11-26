@@ -108,6 +108,9 @@ button { color: inherit; }
 }
 .main-nav, .site-footer nav { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem clamp(1rem, 3vw, 2.6rem); }
 .main-nav a, .site-footer nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   color: var(--muted);
   font-size: .9rem;
   font-weight: 600;
@@ -159,6 +162,7 @@ button { color: inherit; }
 .button.small { min-height: 2.35rem; padding: .36rem .65rem; font-size: .78rem; }
 .actions { display: flex; flex-wrap: wrap; gap: .65rem .9rem; align-items: center; }
 .text-link {
+  position: relative;
   color: var(--green);
   font-size: .9rem;
   font-weight: 650;
@@ -166,6 +170,7 @@ button { color: inherit; }
   text-decoration-color: #9dae9e;
   text-underline-offset: .28em;
 }
+.text-link::after { content: ""; position: absolute; inset: -.7rem -.3rem; }
 .text-link:hover { text-decoration-color: currentColor; }
 .text-link span { margin-left: .18rem; }
 
@@ -176,7 +181,7 @@ button { color: inherit; }
     padding-block: .75rem .6rem;
   }
   .main-nav { grid-column: 1 / -1; grid-row: 2; gap: 1.5rem; }
-  .main-nav a { display: inline-flex; align-items: center; min-height: 2.15rem; }
+  .main-nav a { display: inline-flex; align-items: center; min-height: 2.75rem; }
   .header-action { min-height: 2.25rem; padding-inline: .64rem; }
   .brand { gap: .45rem; }
   .footer-inner { align-items: flex-start; }
