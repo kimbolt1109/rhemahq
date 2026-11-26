@@ -37,7 +37,7 @@
 .bench-hint code { font-family: var(--mono); font-size: .88em; color: var(--green); }
 .output-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .45rem 1rem; min-height: 2.35rem; }
 .bench-empty { padding: .8rem; color: var(--muted); border: 1px dashed var(--line); background: #f2f4eb; }
-.bench-results { display: grid; gap: .85rem; margin-top: .8rem; }
+.bench-results { display: grid; grid-template-columns: minmax(0, 1fr); gap: .85rem; margin-top: .8rem; }
 .bench-results h5 { margin: 0 0 .35rem; font-size: .85rem; }
 .bench-table-wrap { overflow-x: auto; border: 1px solid var(--line); }
 .bench-table { border-collapse: collapse; width: 100%; font: 400 .75rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
