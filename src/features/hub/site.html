@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="./assets/base.css">
 <link rel="stylesheet" href="./assets/home.css">
 <link rel="stylesheet" href="./assets/workbench.css">
+<link rel="stylesheet" href="./assets/invoice-mapping.css">
 <link rel="stylesheet" href="./assets/scroll.css">
 </head>
 <body class="home">
@@ -238,7 +239,7 @@
               <label class="button file-control">Choose invoices<input id="ledger-file" data-files type="file" multiple accept=".csv,.xlsx,.xls" data-track="demo_upload" data-product="n27"></label>
               <button type="button" class="button primary" id="ledger-run" data-build disabled data-track="demo_build" data-product="n27">Build workbook</button>
             </div>
-            <p class="bench-hint">Use columns <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code>, and <code>total</code>. Quantity and unit price are optional.</p>
+            <p class="bench-hint">Add the original export. If headers differ, match the columns in Ledger. Use YYYY-MM-DD or Excel dates and numeric totals.</p>
             <p class="bench-status" id="ledger-note" data-status role="status"></p>
           </div>
           <div class="bench-output">
@@ -247,6 +248,7 @@
             <div class="bench-results" data-results hidden>
               <div id="ledger-summary" data-summary></div>
               <div id="ledger-sources" data-receipt-table></div>
+              <p class="bench-hint">CSV positions count records, including the header and blank records. Excel positions cite the row on the named sheet.</p>
             </div>
           </div>
         </div>

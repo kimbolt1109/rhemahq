@@ -169,7 +169,7 @@
       busy(true);
       showStatus(progress);
       try {
-        const loaded = await loader();
+        const loaded = await loader(() => current === revision);
         if (current !== revision) return;
         input = append ? input.concat(loaded) : loaded;
         showStatus(input.length + " " + config.inputName + " ready" + source + ".", "success");
@@ -186,11 +186,12 @@
       const selected = Array.from(files.files);
       files.value = "";
       if (!selected.length) return;
-      loadInput(async () => {
+      loadInput(async (isCurrent) => {
         const batch = [];
         for (const file of selected) {
+          if (!isCurrent()) break;
           try {
-            batch.push(await config.read(file));
+            batch.push(await config.read(file, isCurrent));
           } catch (error) {
             throw new Error(file.name + ": " + error.message);
           }

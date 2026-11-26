@@ -11,7 +11,7 @@
           <label class="button file-control">Add invoices<input data-files type="file" multiple accept=".csv,.xlsx,.xls"></label>
           <button class="button primary" type="button" data-build disabled>Build workbook</button>
         </div>
-        <p class="bench-hint">Use columns <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. Format dates as YYYY-MM-DD or Excel dates. <code>quantity</code> and <code>unit</code> are optional. Keep credits negative.</p>
+        <p class="bench-hint">Add the original export. If headers differ, match the columns in Ledger. Use YYYY-MM-DD or Excel dates and numeric totals. Keep credits negative.</p>
         <p class="bench-status" data-status role="status"></p>
       </div>
       <div class="bench-output">
@@ -23,6 +23,7 @@
         <div class="bench-results" data-results hidden>
           <div id="summary" data-summary></div>
           <div id="sources" data-receipt-table></div>
+          <p class="bench-hint">CSV positions count records from 1, including the header and blank records. A quoted line break stays in one record. Excel positions cite the row on the named sheet.</p>
         </div>
       </div>
     </div>

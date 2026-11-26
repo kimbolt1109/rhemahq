@@ -8,6 +8,7 @@
 <meta name="description" content="Build a fee rollup and source-reference workbook from CSV or Excel invoice files.">
 <link rel="stylesheet" href="../../assets/base.css">
 <link rel="stylesheet" href="../../assets/workbench.css">
+<link rel="stylesheet" href="../../assets/invoice-mapping.css">
 </head>
 <body class="tool-page">
 <a class="skip" href="#main">Skip to content</a>
@@ -20,7 +21,7 @@
 <main class="container" id="main">
   <p class="eyebrow">Fulfillment</p>
   <h1>Fulfillment Ledger</h1>
-  <p class="tool-intro">Combine 3PL invoice exports into a fee rollup and a source-reference sheet. Each charge keeps its original filename, worksheet, row and source file checksum.</p>
+  <p class="tool-intro">Combine 3PL invoice exports into a fee rollup and a source-reference sheet. Each charge keeps its original filename and checksum with its Excel row or CSV record.</p>
   <article class="workbench" data-workbench="ledger" data-append data-product="n27">
     <header class="bench-head">
       <div><h2>Reconciliation workbook</h2><p>CSV or Excel inputs · files stay on this device</p></div>
@@ -34,7 +35,7 @@
           <label class="button file-control">Add invoices<input data-files type="file" multiple accept=".csv,.xlsx,.xls"></label>
           <button class="button primary" type="button" data-build disabled>Build workbook</button>
         </div>
-        <p class="bench-hint">Use columns <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. Format dates as YYYY-MM-DD or Excel dates. <code>quantity</code> and <code>unit</code> are optional. Keep credits negative.</p>
+        <p class="bench-hint">Add the original export. If headers differ, match the columns in Ledger. Use YYYY-MM-DD or Excel dates and numeric totals. Keep credits negative.</p>
         <p class="bench-status" data-status role="status"></p>
       </div>
       <div class="bench-output">
@@ -46,6 +47,7 @@
         <div class="bench-results" data-results hidden>
           <div id="summary" data-summary></div>
           <div id="sources" data-receipt-table></div>
+          <p class="bench-hint">CSV positions count records from 1, including the header and blank records. A quoted line break stays in one record. Excel positions cite the row on the named sheet.</p>
         </div>
       </div>
     </div>

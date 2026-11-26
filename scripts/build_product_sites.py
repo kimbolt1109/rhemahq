@@ -90,6 +90,8 @@ def product_page(context, product, products):
     body = render(feature / "site.html", **offer_links(product, "../"), **extras,
                   art=f"{path}/{COVERS[context]}", footer=footer(context, products))
     bench_style = '\n<link rel="stylesheet" href="../assets/workbench.css">' if context in TOOLS else ""
+    if context == "fulfillment":
+        bench_style += '\n<link rel="stylesheet" href="../assets/invoice-mapping.css">'
     emit(product["slug"] + "/index.html", f"""<!doctype html>
 <html lang="en">
 <head>

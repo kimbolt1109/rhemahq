@@ -2,6 +2,7 @@ import { reconcileRows } from "../../domain/fulfillment/ledger.js";
 import { readInvoice } from "../../infrastructure/fulfillment/invoices.js";
 import { wireWorkbench } from "../../workbench.js";
 import { LEDGER_SAMPLE } from "./sample.js";
+import { invoiceMappingDialog } from "./column-mapping.js";
 
 async function ledgerSample() {
   const xlsx = globalThis.XLSX;
@@ -26,14 +27,16 @@ function saveWorkbook(output) {
   const xlsx = globalThis.XLSX;
   const workbook = xlsx.utils.book_new();
   xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(output.summary), "Fee rollup");
-  xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(output.sources), "Source references");
+  const sources = output.sources.map((row) => ({ ...row, positionType: positionType(row.file) }));
+  xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(sources), "Source references");
   xlsx.writeFile(workbook, "fulfillment_ledger.xlsx");
 }
+
+const positionType = (file) => /\.csv$/i.test(file) ? "CSV record" : "Excel row";
 
 const ledger = {
   available: () => Boolean(globalThis.XLSX),
   sample: ledgerSample,
-  read: (file) => readInvoice(file, globalThis.XLSX),
   build: reconcileRows,
   download: saveWorkbook,
   inputName: "invoice rows",
@@ -45,9 +48,15 @@ const ledger = {
   }),
   receipt: (output) => ({
     title: "Source references",
-    columns: ["File", "Sheet", "Row", "Label", "Total", "SHA-256"],
-    rows: output.sources.map((row) => [row.file, row.sheet, row.row, row.label, row.total, row.sha256.slice(0, 12) + "…"]),
+    columns: ["File", "Sheet", "Position", "Position type", "Label", "Total", "SHA-256"],
+    rows: output.sources.map((row) => [row.file, row.sheet, row.row, positionType(row.file), row.label, row.total, row.sha256.slice(0, 12) + "…"]),
   }),
 };
 
-document.querySelectorAll('[data-workbench="ledger"]').forEach((root) => wireWorkbench(root, ledger));
+document.querySelectorAll('[data-workbench="ledger"]').forEach((root) => {
+  const chooseMapping = invoiceMappingDialog(root);
+  wireWorkbench(root, {
+    ...ledger,
+    read: (file, isCurrent) => readInvoice(file, globalThis.XLSX, (source) => isCurrent() ? chooseMapping(source) : undefined),
+  });
+});

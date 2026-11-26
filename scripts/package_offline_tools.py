@@ -16,6 +16,7 @@ COMMON = (
 TOOLS = (
     ("fulfillment", "ledger", (
         "assets/workbenches/fulfillment.js",
+        "assets/invoice-mapping.css",
         "tools/ledger/vendor/xlsx.full.min.js",
         "tools/ledger/vendor/LICENSE",
     )),

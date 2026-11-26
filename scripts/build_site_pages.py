@@ -334,7 +334,7 @@ GUIDES = [
 <p class="note">Sources: Moodle docs <a href="https://docs.moodle.org/en/Import_questions">Import questions</a>, <a href="https://docs.moodle.org/en/Export_questions">Export questions</a>; native contract checks 2026-11-21. </p>
 """),
     ("fulfyld-bdr-reconciliation.html", "Reconcile Fulfyld Billing Detail Reports (BDR) in a workbook",
-     "The Fulfyld BDR CSV export, field by field, and how to tie every billed row back to its original file, worksheet and line in one reconciliation workbook.",
+     "The Fulfyld BDR CSV export, field by field, and how to cite each original Excel row or CSV record in a reconciliation workbook.",
      "Fulfyld Billing Detail Report (BDR) CSV fields, download path, and a source-row reconciliation workflow for 3PL finance ops.", """
 <p class="kicker">Guide · 3PL finance ops</p>
 <h1>Reconcile Fulfyld Billing Detail Reports without losing the source row</h1>
@@ -357,14 +357,14 @@ GUIDES = [
 <li><strong>Collect</strong> the BDR CSVs for the period, one per invoice. Keep the original filenames.</li>
 <li><strong>Normalize dates.</strong> Spreadsheet exports often carry Excel serial numbers; convert to <code>YYYY-MM-DD</code> before bucketing by month, or your rollup grows a "46114.3" month.</li>
 <li><strong>Roll up</strong> by provider × currency × month × exact fee label. Count rows, sum quantities only where present, sum signed totals.</li>
-<li><strong>Keep a source-reference sheet:</strong> for every billed row, the original file, worksheet (or CSV line), row address, label, total, and a SHA-256 of the source file. This is what makes a credit dispute fast: you hand the provider the exact line, not a screenshot.</li>
+<li><strong>Keep a source-reference sheet:</strong> retain the original file name and SHA-256, together with the worksheet row or CSV record, label and total. CSV records include the header and can span more than one text line if a field contains a quoted line break.</li>
 <li><strong>Review exceptions</strong> — labels that changed wording mid-period, currencies mixed in one invoice, credits without a matching charge. The workbook surfaces them; a human decides.</li>
 </ol>
 <h2>What this is not</h2>
 <p>A consolidation and evidence workbook is <strong>not</strong> an error detector and not a ledger posting. It does not decide that a charge is wrong; it makes every charge re-openable. Published "3–15% billing leakage" figures in this market are vendor-reported — WareAudit's own site notes no independent study exists — so treat any error-rate claim, including ours if we ever made one, as marketing until measured on your own bills.</p>
 <div class="card">
 <h3>Do it with the tool</h3>
-<p>The <strong>Fulfillment Ledger</strong> reads CSV or Excel with headers <code>provider</code>, <code>currency</code>, <code>date</code>, <code>label</code> and <code>total</code>. It also accepts <code>quantity</code> and <code>unit</code>. For a Fulfyld export, map service type to <code>label</code> and total amount to <code>total</code> in a working copy. Fill provider and currency from the invoice and retain the original row order. The workbook records the rows and checksum of the file you select.</p>
+<p>Open the original export in <strong>Fulfillment Ledger</strong>. If the headers differ from its standard columns, use the column-matching dialog. Check which source columns represent the date, service type and signed total. Set a provider or currency for the sheet only after checking the invoice. The workbook records the selected file's original checksum and source positions.</p>
 <p class="page-actions"><a class="cta solid" href="../#demos">Run the free demo</a><a class="cta" href="../tools/ledger/index.html">Open the tool</a><a class="cta" href="./3pl-reconciliation-comparison.html">Compare the options</a></p>
 </div>
 <p class="note">Source: <a href="https://www.fulfyld.com/docs/download-review-excel-billing-detail-reports/">Fulfyld — download &amp; review Excel billing detail reports</a> (opened 2026-11-22). Exact fee-label column to be confirmed against a customer-authorized export. </p>
